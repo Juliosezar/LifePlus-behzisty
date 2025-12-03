@@ -1,0 +1,6 @@
+@import "tailwindcss";
+/* @source inline("{hover:,}bg-teal-50"); */
+
+@source inline("bg-{red,teal,lime,cyan,purple,orange,green,sky,fuchsia,amber,blue,pink,yellow,emerald,indigo,rose,violet,slate}-50");
+@source inline("{text,border}-{red,teal,lime,cyan,purple,orange,green,sky,fuchsia,amber,blue,pink,yellow,emerald,indigo,rose,violet,slate}-600");
+@source inline("bg-gray-500")

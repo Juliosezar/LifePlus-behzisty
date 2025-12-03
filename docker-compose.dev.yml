@@ -1,5 +1,5 @@
 services:
-  db:
+  database:
     image: postgres:18.1-trixie
     volumes:
       - postgres_lifeplus:/var/lib/postgresql
@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
 
-  web:
+  lifeplus:
     build: 
       context: .
       dockerfile: .docker/Dockerfile
@@ -19,7 +19,7 @@ services:
     volumes:
       - .:/app  # Mount for live code changes
     depends_on:
-      - db
+      - database
 
 
   nginx:
@@ -31,4 +31,7 @@ services:
     - ./media:/usr/share/nginx/html/media
     - ./.docker/nginx.dev.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - web
+      - lifeplus
+
+volumes:
+  postgres_lifeplus:
