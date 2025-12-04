@@ -1,5 +1,5 @@
 services:
-  db:
+  database:
     image: postgres:18.1-trixie
     volumes:
       - postgres_lifeplus:/var/lib/postgresql
@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
 
-  web:
+  lifeplus:
     build: 
       context: .
       dockerfile: .docker/Dockerfile

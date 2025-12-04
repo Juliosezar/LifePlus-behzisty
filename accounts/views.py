@@ -1,3 +1,29 @@
-from django.shortcuts import render
+from django.contrib.auth.views import LoginView
+from django.views.generic import TemplateView, FormView
+from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+from .forms import SearchForm
 
-# Create your views here.
+
+
+class CustomLoginView(LoginView):
+    template_name = 'accounts/login.html'
+    fields = '__all__'
+    redirect_authenticated_user = True
+    
+    def get_success_url(self):
+        # Redirect to 'home' after successful login
+        return reverse_lazy('home')
+
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+
+class HomeView(FormView):
+    template_name = 'accounts/home.html'
+    form_class = SearchForm

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود به سیستم</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazir Font (A popular Persian font similar to the one in the image) -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        /* Custom gradient based on the image */
+        .header-gradient {
+            background: linear-gradient(135deg, #4f80ff 0%, #3a3af5 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <!-- Card Container -->
+    <div class="w-full max-w-[380px] bg-white rounded-3xl shadow-xl overflow-hidden">
+        
+        <!-- Blue Header Section -->
+        <div class="header-gradient text-white p-8 text-center relative h-64 flex flex-col items-center justify-center">
+            
+            <!-- Icon Box -->
+            <div class="bg-white/20 rounded-2xl w-16 h-16 flex items-center justify-center mb-4 backdrop-blur-sm border border-white/30">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12" />
+                </svg>
+            </div>
+
+            <h1 class="text-2xl font-bold mb-2">خوش آمدید</h1>
+            <p class="text-white/80 text-sm">برای ادامه، نام کاربری و رمز عبور خود را وارد کنید</p>
+        </div>
+
+        <!-- White Form Section -->
+        <div class="p-8 pb-10">
+            <form method="POST" action="{% url 'login' %}">
+                {% csrf_token %}
+
+                <!-- Error Message -->
+                {% if form.errors %}
+                    <div class="mb-4 text-red-500 text-xs text-center font-bold bg-red-50 p-2 rounded">
+                        نام کاربری یا رمز عبور اشتباه است
+                    </div>
+                {% endif %}
+
+                <!-- Username Input -->
+                <div class="mb-6 relative">
+                    <label for="username" class="block text-gray-700 text-sm font-bold mb-2">نام کاربری <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input 
+                            type="text" 
+                            name="username" 
+                            id="username" 
+                            required 
+                            class="w-full text-left bg-gray-50 text-gray-800 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-sm"
+                            placeholder="username"
+                        >
+                        <!-- User Icon -->
+                        <span class="absolute right-4 top-3.5 text-gray-400">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="mb-8 relative">
+                    <label for="password" class="block text-gray-700 text-sm font-bold mb-2">رمز عبور <span class="text-red-500">*</span></label>
+                    <div class="relative">
+                        <input 
+                            type="password" 
+                            name="password" 
+                            id="password" 
+                            required 
+                            class="w-full text-left bg-gray-50 text-gray-800 border-none rounded-xl py-3 px-4 focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all shadow-sm"
+                            dir="ltr"
+                            placeholder="••••••••"
+                        >
+                        <!-- Lock Icon -->
+                        <span class="absolute right-4 top-3.5 text-gray-400">
+                           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                              <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button 
+                    type="submit" 
+                    class="w-full bg-[#1d4ed8] hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl transition duration-300 shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2"
+                >
+                    <span>ورود به سیستم</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 rotate-180">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
+
+                <!-- Footer Text -->
+
+            </form>
+        </div>
+    </div>
+
+</body>
+</html>
