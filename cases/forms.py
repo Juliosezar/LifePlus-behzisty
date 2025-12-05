@@ -177,6 +177,13 @@ class CaseForm(forms.ModelForm):
                 raise ValidationError("شماره شبا اشتباه است.(باید 24 رقم باشد.)")
         return bank_shaba_number
 
+    def clean_case_type(self):
+        case_type = self.cleaned_data['case_type']
+        print(case_type)
+        if case_type is None:
+            raise ValidationError("لطفا نوع پرونده را انتخاب کنید.")
+        return case_type
+
 def check_national_id(national_id):
     control_num = int(national_id[9:])
     num = national_id
