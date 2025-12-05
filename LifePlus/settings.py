@@ -27,7 +27,7 @@ if IN_PRODUCTION:
     #SECURE_SSL_REDIRECT = True          # Force HTTPS (optional)
     #SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    CSRF_TRUSTED_ORIGINS = [*ALLOWED_HOSTS]
+    CSRF_TRUSTED_ORIGINS = [f'https://{i}' for i in ALLOWED_HOSTS]
 
     # Optional: HSTS
     #SECURE_HSTS_SECONDS = 31536000
