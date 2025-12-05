@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>گزارش گیری پیشرفته</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        /* Custom Scrollbar for filter boxes */
+        .filter-scroll::-webkit-scrollbar { width: 4px; }
+        .filter-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .filter-scroll::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        .filter-scroll::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        
+        /* Checkbox Style */
+        input[type="checkbox"] {
+            width: 1rem; height: 1rem;
+            cursor: pointer;
+            accent-color: #000; /* Black accent to match header */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen pb-20">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 mb-6">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <h1 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                <span class="bg-black text-white p-1.5 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" /></svg>
+                </span>
+                فیلتر پیشرفته پرونده‌ها
+            </h1>
+            <a href="{% url 'accounts:home' %}" class="text-gray-500 hover:text-black text-sm font-medium border px-3 py-1 rounded-lg">بازگشت</a>
+        </div>
+    </header>
+
+    <main class="max-w-[95%] mx-auto">
+        
+        <form method="get" id="filter-form">
+            
+            <!-- FILTERS COMPACT GRID -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+
+                <!-- 1. Case Type -->
+                {% include "reports/filter_card.html" with field=form.case_type label="نوع پرونده" %}
+
+                <!-- 2. Gender -->
+                {% include "reports/filter_card.html" with field=form.gender label="جنسیت" %}
+
+                <!-- 3. Military -->
+                {% include "reports/filter_card.html" with field=form.military_serveice label="سربازی" %}
+
+                <!-- 4. Pension -->
+                {% include "reports/filter_card.html" with field=form.pension_status label="مستمری" %}
+
+                <!-- 5. Housing -->
+                {% include "reports/filter_card.html" with field=form.housing_status label="مسکن" %}
+
+                <!-- 6. Marriage -->
+                {% include "reports/filter_card.html" with field=form.marrige_status label="تاهل" %}
+
+                <!-- 7. Education -->
+                {% include "reports/filter_card.html" with field=form.education label="تحصیلات" %}
+
+                <!-- 8. Residential Area -->
+                {% include "reports/filter_card.html" with field=form.residencial_area label="منطقه مسکونی" %}
+
+                <!-- 9. Insurance -->
+                {% include "reports/filter_card.html" with field=form.insurance label="بیمه" %}
+
+            </div>
+
+            <!-- Floating Action Button -->
+            <!-- Action Buttons -->
+            <div class="fixed bottom-6 left-6 z-40 flex flex-col gap-3">
+                
+                <!-- 1. Export Excel Button (Green) -->
+                <a href="{% url 'reports:case_export' %}?{{ request.GET.urlencode }}" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-full shadow-xl transition transform hover:scale-105 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <span>دانلود اکسل</span>
+                </a>
+
+                <!-- 2. Filter Button (Blue) -->
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-full shadow-xl transition transform hover:scale-105 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    </svg>
+                    <span>اعمال فیلتر ({{ cases.count }})</span>
+                </button>
+            </div>        </form>
+
+        <!-- RESULTS TABLE -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-300 overflow-hidden mb-20">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right text-gray-600">
+                    <thead class="bg-gray-100 text-gray-800 uppercase font-bold text-xs">
+                        <tr>
+                            <th class="px-4 py-3">نام و نام خانوادگی</th>
+                            <th class="px-4 py-3">کد ملی</th>
+                            <th class="px-4 py-3">پرونده</th>
+                            <th class="px-4 py-3">تحصیلات</th>
+                            <th class="px-4 py-3">مسکن</th>
+                            <th class="px-4 py-3 text-center">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        {% for case in cases %}
+                        <tr class="hover:bg-blue-50 transition">
+                            <td class="px-4 py-3 font-medium text-gray-900">{{ case.first_name }} {{ case.last_name }}</td>
+                            <td class="px-4 py-3 font-mono">{{ case.national_id }}</td>
+                            <td class="px-4 py-3">
+                                <span class="bg-gray-200 px-2 py-0.5 rounded text-[10px] text-gray-700">{{ case.get_case_type_display }}</span>
+                            </td>
+                            <td class="px-4 py-3">{{ case.get_education_display }}</td>
+                            <td class="px-4 py-3">{{ case.get_housing_status_display }}</td>
+                            <td class="px-4 py-3 text-center">
+                                <a href="{% url 'cases:case_detail' case.pk %}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-2 py-1 rounded border border-blue-100">مشاهده</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-gray-400">موردی با این فیلترها یافت نشد.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JavaScript for "Select All" -->
+    <script>
+        function toggleAll(source, fieldName) {
+            const checkboxes = document.querySelectorAll(`input[name="${fieldName}"]`);
+            checkboxes.forEach(checkbox => {
+                if (checkbox !== source) checkbox.checked = source.checked;
+            });
+        }
+    </script>
+
+</body>
+</html>

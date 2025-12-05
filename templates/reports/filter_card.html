@@ -1,0 +1,25 @@
+<div class="rounded-xl overflow-hidden shadow border border-gray-300 bg-white flex flex-col h-full">
+    <!-- Header -->
+    <div class="bg-black text-white text-center py-2 font-bold text-sm">
+        {{ label }}
+    </div>
+    
+    <!-- Scrollable Content -->
+    <div class="p-3 bg-gray-50 flex-grow">
+        <!-- Select All -->
+        <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
+            <label for="all_{{ field.name }}" class="text-xs font-bold text-gray-700 cursor-pointer">همه</label>
+            <input type="checkbox" id="all_{{ field.name }}" onclick="toggleAll(this, '{{ field.name }}')">
+        </div>
+        
+        <!-- Options List -->
+        <div class="space-y-2 filter-scroll max-h-32 overflow-y-auto pr-1">
+            {% for checkbox in field %}
+            <div class="flex items-center justify-between hover:bg-gray-100 rounded px-1">
+                <label for="{{ checkbox.id_for_label }}" class="text-xs text-gray-600 cursor-pointer w-full">{{ checkbox.choice_label }}</label>
+                {{ checkbox.tag }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>

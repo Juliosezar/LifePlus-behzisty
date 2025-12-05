@@ -16,7 +16,7 @@ class CustomLoginView(LoginView):
     
     def get_success_url(self):
         # Redirect to 'home' after successful login
-        return reverse_lazy('home')
+        return reverse_lazy('accounts:home')
 
 
 def logout_view(request):
@@ -27,3 +27,10 @@ def logout_view(request):
 class HomeView(FormView):
     template_name = 'accounts/home.html'
     form_class = SearchForm
+
+    def __init__(self, *args, **kwargs):
+        from cases.tmp import move, upload
+        #move()
+        #upload()
+        super().__init__(*args, **kwargs)
+

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ثبت پرونده جدید</title>
+    <title>ویرایش پرونده</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
@@ -21,20 +21,26 @@
 </head>
 <body class="bg-gray-50 min-h-screen pb-24">
 
-    <!-- HEADER -->
-    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-emerald-100">
+    <!-- HEADER (Amber Theme) -->
+    <header class="bg-white shadow-sm sticky top-0 z-50 border-b border-amber-100">
         <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
             <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <span class="bg-emerald-100 text-emerald-600 p-2 rounded-lg">
+                <span class="bg-amber-100 text-amber-600 p-2 rounded-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                 </span>
-                ثبت پرونده جدید
+                ویرایش پرونده: {{ form.instance.first_name }} {{ form.instance.last_name }}
             </h1>
-            <a href="{% url 'accounts:home' %}" class="text-gray-500 hover:text-emerald-700 text-sm font-medium flex items-center gap-1 bg-gray-50 px-3 py-1 rounded-lg border hover:border-emerald-300 transition">
-                بازگشت
-            </a>
+            <div class="flex gap-2">
+                <a href="{% url 'cases:case_delete' form.instance.pk %}" class="text-red-500 hover:text-red-700 text-sm font-medium flex items-center gap-1 border border-red-200 bg-red-50 px-3 py-1 rounded-lg hover:bg-red-100 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                    حذف پرونده
+                </a>
+                <a href="{% url 'accounts:home' %}" class="text-gray-500 hover:text-amber-700 text-sm font-medium flex items-center gap-1 bg-gray-50 px-3 py-1 rounded-lg border hover:border-amber-300 transition">
+                    بازگشت
+                </a>
+            </div>
         </div>
     </header>
 
@@ -46,7 +52,7 @@
             <!-- Errors -->
             {% if form.non_field_errors or disabilities.non_form_errors or family.non_form_errors %}
             <div class="bg-red-50 border-r-4 border-red-500 p-5 rounded-xl mb-6 shadow-sm">
-                <p class="font-bold text-red-800">لطفا خطاهای زیر را بررسی کنید:</p>
+                <p class="font-bold text-red-800">لطفا خطاهای عمومی زیر را بررسی کنید:</p>
                 <div class="text-sm text-red-600 space-y-1 mt-2">
                     {{ form.non_field_errors }}
                     {{ disabilities.non_form_errors }}
@@ -60,7 +66,7 @@
 
             <!-- 1. IDENTITY -->
             <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                <h2 class="text-lg font-bold text-emerald-800 mb-6 pb-2 border-b border-emerald-100">1. اطلاعات هویتی</h2>
+                <h2 class="text-lg font-bold text-amber-800 mb-6 pb-2 border-b border-amber-100">1. اطلاعات هویتی</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div><label class="block mb-2 text-sm text-gray-700">{{ form.first_name.label }}</label>{{ form.first_name }}{% for error in form.first_name.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                     <div><label class="block mb-2 text-sm text-gray-700">{{ form.last_name.label }}</label>{{ form.last_name }}{% for error in form.last_name.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
@@ -75,9 +81,9 @@
                 </div>
             </div>
 
-            <!-- 2. STATUS & JOB (Case Type Moved Out) -->
+            <!-- 2. STATUS & JOB -->
             <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                <h2 class="text-lg font-bold text-emerald-800 mb-6 pb-2 border-b border-emerald-100">2. وضعیت سکونت و شغلی</h2>
+                <h2 class="text-lg font-bold text-amber-800 mb-6 pb-2 border-b border-amber-100">2. وضعیت سکونت و شغلی</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div><label class="block mb-2 text-sm text-gray-700">{{ form.phone_number.label }}</label>{{ form.phone_number }}{% for error in form.phone_number.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                     <div><label class="block mb-2 text-sm text-gray-700">{{ form.home_phone_number.label }}</label>{{ form.home_phone_number }}{% for error in form.home_phone_number.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
@@ -86,18 +92,18 @@
                     <div><label class="block mb-2 text-sm text-gray-700">{{ form.insurance.label }}</label>{{ form.insurance }}{% for error in form.insurance.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                     
                     <!-- Rental Fields -->
-                    <div id="rental-fields" class="col-span-full md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100 hidden fade-in">
-                        <div><label class="block mb-2 text-sm text-gray-700 font-bold">{{ form.house_mortgage.label }}</label>{{ form.house_mortgage }}</div>
-                        <div><label class="block mb-2 text-sm text-gray-700 font-bold">{{ form.house_rent.label }}</label>{{ form.house_rent }}</div>
+                    <div id="rental-fields" class="col-span-full md:col-span-3 grid grid-cols-1 md:grid-cols-2 gap-6 bg-amber-50/50 p-4 rounded-xl border border-amber-100 hidden fade-in">
+                        <div><label class="block mb-2 text-sm text-gray-700 font-bold">{{ form.house_mortgage.label }}</label>{{ form.house_mortgage }}{% for error in form.house_mortgage.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
+                        <div><label class="block mb-2 text-sm text-gray-700 font-bold">{{ form.house_rent.label }}</label>{{ form.house_rent }}{% for error in form.house_rent.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                     </div>
 
                     <div class="md:col-span-3"><label class="block mb-2 text-sm text-gray-700">{{ form.address.label }}</label>{{ form.address }}{% for error in form.address.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                 </div>
             </div>
 
-            <!-- 3. CASE INFORMATION (NEW SECTION) -->
+            <!-- 3. CASE INFORMATION -->
             <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                <h2 class="text-lg font-bold text-emerald-800 mb-6 pb-2 border-b border-emerald-100">3. اطلاعات پرونده</h2>
+                <h2 class="text-lg font-bold text-amber-800 mb-6 pb-2 border-b border-amber-100">3. اطلاعات پرونده</h2>
                 
                 <div class="mb-6">
                     <label class="block mb-2 text-sm text-gray-700 font-bold">{{ form.case_type.label }}</label>
@@ -105,7 +111,7 @@
                     {% for error in form.case_type.errors %}<p class="error-text">{{ error }}</p>{% endfor %}
                 </div>
 
-                <!-- Formsets (Disability, etc.) Moved Here -->
+                <!-- Formsets -->
                 <div id="disability-section" class="bg-yellow-50 rounded-xl p-6 border border-yellow-200 mt-6 hidden"><h3 class="font-bold text-yellow-800 mb-4">اطلاعات معلولیت</h3>{{ disabilities.management_form }}<div id="disability-container" class="space-y-4">{% for form in disabilities %}<div class="formset-row bg-white p-4 rounded-xl border border-yellow-200 shadow-sm relative grid grid-cols-1 md:grid-cols-2 gap-4">{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}<div class="absolute top-2 left-2"><div class="hidden">{{ form.DELETE }}</div><button type="button" class="delete-row-btn text-red-400 hover:text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div><div><label class="block mb-2 text-sm text-gray-600">نوع معلولیت</label>{{ form.disability_type }}</div><div><label class="block mb-2 text-sm text-gray-600">شدت معلولیت</label>{{ form.disability_level }}</div></div>{% endfor %}</div><div class="mt-4 flex justify-end"><button type="button" id="add-disability-btn" class="bg-yellow-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-yellow-300 transition">افزودن</button></div></div>
                 <div id="reason-section" class="bg-rose-50 rounded-xl p-6 border border-rose-200 mt-6 hidden"><h3 class="font-bold text-rose-800 mb-4">علت تشکیل پرونده (اجتماعی)</h3>{{ reasons.management_form }}<div id="reason-container" class="space-y-4">{% for form in reasons %}<div class="formset-row bg-white p-4 rounded-xl border border-rose-200 shadow-sm relative">{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}<div class="absolute top-2 left-2"><div class="hidden">{{ form.DELETE }}</div><button type="button" class="delete-row-btn text-red-400 hover:text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div><div><label class="block mb-2 text-sm text-gray-600">علت</label>{{ form.reason }}</div></div>{% endfor %}</div><div class="mt-4 flex justify-end"><button type="button" id="add-reason-btn" class="bg-rose-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-rose-300 transition">افزودن</button></div></div>
                 <div id="recovered-section" class="bg-blue-50 rounded-xl p-6 border border-blue-200 mt-6 hidden"><h3 class="font-bold text-blue-800 mb-4">اطلاعات بهبود یافتگان</h3>{{ recovered.management_form }}<div id="recovered-container" class="space-y-4">{% for form in recovered %}<div class="formset-row bg-white p-4 rounded-xl border border-blue-200 shadow-sm relative grid grid-cols-1 md:grid-cols-2 gap-4">{% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}<div class="absolute top-2 left-2"><div class="hidden">{{ form.DELETE }}</div><button type="button" class="delete-row-btn text-red-400 hover:text-red-600"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div><div><label class="block mb-2 text-sm text-gray-600">علت</label>{{ form.reason }}</div><div><label class="block mb-2 text-sm text-gray-600">مهارت</label>{{ form.skill }}</div><div><label class="block mb-2 text-sm text-gray-600">سابقه</label>{{ form.work_experience }}</div><div><label class="block mb-2 text-sm text-gray-600">بیمه</label>{{ form.insurance_type }}</div></div>{% endfor %}</div><div class="mt-4 flex justify-end"><button type="button" id="add-recovered-btn" class="bg-blue-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-300 transition">افزودن</button></div></div>
@@ -114,7 +120,7 @@
             <!-- 4. FINANCIAL -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                    <h2 class="text-lg font-bold text-emerald-800 mb-6 pb-2 border-b border-emerald-100">4. اطلاعات بانکی</h2>
+                    <h2 class="text-lg font-bold text-amber-800 mb-6 pb-2 border-b border-amber-100">4. اطلاعات بانکی</h2>
                     <div class="space-y-4">
                         <div><label class="block mb-2 text-sm text-gray-700">{{ form.bank_card_number.label }}</label>{{ form.bank_card_number }}{% for error in form.bank_card_number.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                         <div><label class="block mb-2 text-sm text-gray-700">{{ form.bank_account_number.label }}</label>{{ form.bank_account_number }}{% for error in form.bank_account_number.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
@@ -122,7 +128,7 @@
                     </div>
                 </div>
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
-                    <h2 class="text-lg font-bold text-emerald-800 mb-6 pb-2 border-b border-emerald-100">5. آمار اعضا</h2>
+                    <h2 class="text-lg font-bold text-purple-600 mb-6 pb-2 border-b border-purple-100">5. آمار اعضا</h2>
                     <div class="grid grid-cols-2 gap-4">
                         <div class="col-span-2"><label class="block mb-2 text-sm text-gray-700">{{ form.marrige_status.label }}</label>{{ form.marrige_status }}{% for error in form.marrige_status.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                         <div><label class="block mb-2 text-sm text-gray-700">{{ form.children_count.label }}</label>{{ form.children_count }}{% for error in form.children_count.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
@@ -170,14 +176,13 @@
 
             <!-- SUBMIT -->
             <div class="flex items-center justify-end pt-8 sticky bottom-4 z-40">
-                <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-12 rounded-xl shadow-2xl transition-all hover:-translate-y-1">
-                    ثبت نهایی پرونده
+                <button type="submit" class="bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-12 rounded-xl shadow-2xl transition-all hover:-translate-y-1">
+                    ذخیره تغییرات
                 </button>
             </div>
         </form>
 
-        <!-- HIDDEN TEMPLATES (Keep your empty templates here) -->
-        <!-- ... [Copy all the div id="empty-..." from previous templates] ... -->
+        <!-- HIDDEN TEMPLATES (Identical copies) -->
         <div id="empty-disability-form" class="hidden"><div class="formset-row bg-white p-4 rounded-xl border border-yellow-200 shadow-sm relative grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"><div class="absolute top-2 left-2"><div class="hidden">{{ disabilities.empty_form.DELETE }}</div><button type="button" class="delete-row-btn text-red-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div><div><label class="block mb-2 text-sm text-gray-600">نوع معلولیت</label>{{ disabilities.empty_form.disability_type }}</div><div><label class="block mb-2 text-sm text-gray-600">شدت معلولیت</label>{{ disabilities.empty_form.disability_level }}</div></div></div>
         <div id="empty-reason-form" class="hidden"><div class="formset-row bg-white p-4 rounded-xl border border-rose-200 shadow-sm relative mt-4"><div class="absolute top-2 left-2"><div class="hidden">{{ reasons.empty_form.DELETE }}</div><button type="button" class="delete-row-btn text-red-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div><div><label class="block mb-2 text-sm text-gray-600">علت</label>{{ reasons.empty_form.reason }}</div></div></div>
         <div id="empty-recovered-form" class="hidden"><div class="formset-row bg-white p-4 rounded-xl border border-emerald-200 shadow-sm relative grid grid-cols-1 md:grid-cols-2 gap-4 mt-4"><div class="absolute top-2 left-2"><div class="hidden">{{ recovered.empty_form.DELETE }}</div><button type="button" class="delete-row-btn text-red-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div><div><label class="block mb-2 text-sm text-gray-600">علت</label>{{ recovered.empty_form.reason }}</div><div><label class="block mb-2 text-sm text-gray-600">مهارت</label>{{ recovered.empty_form.skill }}</div><div><label class="block mb-2 text-sm text-gray-600">سابقه</label>{{ recovered.empty_form.work_experience }}</div><div><label class="block mb-2 text-sm text-gray-600">بیمه</label>{{ recovered.empty_form.insurance_type }}</div></div></div>

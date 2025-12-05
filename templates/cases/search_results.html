@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نتایج جستجو</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <style>body { font-family: 'Vazirmatn', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen pb-20">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span class="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+                نتایج جستجو: "{{ query }}"
+            </h1>
+            <a href="{% url 'accounts:home' %}" class="text-gray-500 hover:text-gray-700 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                بازگشت به داشبورد
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        {% if results %}
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-right text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th scope="col" class="px-6 py-4 font-bold">نام</th>
+                                <th scope="col" class="px-6 py-4 font-bold">نام خانوادگی</th>
+                                <th scope="col" class="px-6 py-4 font-bold">کد ملی</th>
+                                <th scope="col" class="px-6 py-4 font-bold">نوع پرونده</th>
+                                <th scope="col" class="px-6 py-4 font-bold text-center">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for case in results %}
+                            <tr class="bg-white border-b hover:bg-blue-50 transition-colors duration-150">
+                                <!-- First Name -->
+                                <td class="px-6 py-4 font-medium text-gray-900">
+                                    {{ case.first_name }}
+                                </td>
+                                
+                                <!-- Last Name -->
+                                <td class="px-6 py-4 font-medium text-gray-900">
+                                    {{ case.last_name }}
+                                </td>
+                                
+                                <!-- National ID -->
+                                <td class="px-6 py-4">
+                                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded border border-gray-200 font-mono text-xs tracking-wider">
+                                        {{ case.national_id }}
+                                    </span>
+                                </td>
+                                
+                                <!-- Case Type (Colored Badges) -->
+                                <td class="px-6 py-4">
+                                    {% if case.case_type == 'rehab' %}
+                                        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded border border-yellow-200">توانبخشی</span>
+                                    {% elif case.case_type == 'social' %}
+                                        <span class="bg-rose-100 text-rose-800 text-xs font-medium px-2.5 py-0.5 rounded border border-rose-200">اجتماعی</span>
+                                    {% elif case.case_type == 'recovered' %}
+                                        <span class="bg-emerald-100 text-emerald-800 text-xs font-medium px-2.5 py-0.5 rounded border border-emerald-200">بهبود یافته</span>
+                                    {% else %}
+                                        <span class="bg-gray-100 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded border border-gray-200">-</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Action Button -->
+                                <td class="px-6 py-4 text-center">
+                                    <a href="{% url 'cases:case_detail' case.pk %}" class="inline-flex items-center gap-1 text-blue-600 hover:text-blue-900 hover:underline font-medium">
+                                        <span>مشاهده</span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                        </svg>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Footer count -->
+                <div class="bg-gray-50 px-6 py-3 border-t border-gray-200 text-sm text-gray-500">
+                    تعداد نتایج: {{ results|length }}
+                </div>
+            </div>
+        {% else %}
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-sm border border-gray-200">
+                <div class="bg-gray-100 p-6 rounded-full mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-700">موردی یافت نشد</h3>
+                <p class="text-gray-500 mt-2">لطفا با املای متفاوت یا اطلاعات دقیق‌تر جستجو کنید.</p>
+                <a href="{% url 'accounts:home' %}" class="mt-6 text-blue-600 hover:text-blue-800 font-medium border-b border-blue-600 pb-0.5">بازگشت به صفحه اصلی</a>
+            </div>
+        {% endif %}
+
+    </main>
+</body>
+</html>

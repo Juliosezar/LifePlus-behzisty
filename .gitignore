@@ -1,6 +1,8 @@
 .docker/iran-251125.osm.pbf
 .docker/iraq-251125.osm.pbf
 ### OSX ###
+/cases/media/*
+/media/
 .DS_Store
 .AppleDouble
 .LSOverride

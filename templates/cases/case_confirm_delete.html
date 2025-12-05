@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>حذف پرونده</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" />
+    <style>body { font-family: 'Vazirmatn', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center p-4">
+    <div class="bg-white p-8 rounded-2xl shadow-lg max-w-md w-full text-center">
+        <div class="mx-auto w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-800 mb-2">آیا از حذف پرونده مطمئن هستید؟</h2>
+        <p class="text-gray-500 mb-8">
+            شما در حال حذف پرونده 
+            <span class="font-bold text-gray-700">"{{ object.first_name }} {{ object.last_name }}"</span>
+            هستید. این عملیات غیرقابل بازگشت است.
+        </p>
+        <form method="post" class="flex gap-4">
+            {% csrf_token %}
+            <a href="{% url 'accounts:home' %}" class="flex-1 py-3 border border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 text-center">انصراف</a>
+            <button type="submit" class="flex-1 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold shadow-lg shadow-red-500/30">بله، حذف کن</button>
+        </form>
+    </div>
+</body>
+</html>

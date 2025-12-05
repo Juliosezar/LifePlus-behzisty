@@ -80,8 +80,7 @@
         <!-- 2. Search Bar Section -->
 <!-- 2. Search Bar Section (Updated) -->
 <div class="w-full">
-    <form method="GET" class="relative max-w-5xl mx-auto">
-        
+    <form method="GET" action="{% url 'cases:case_search' %}" class="relative max-w-5xl mx-auto"> 
         <!-- White Container -->
         <div class="flex items-center bg-white rounded-2xl shadow-md border-2 border-transparent focus-within:border-blue-500 focus-within:shadow-blue-200 transition-all duration-300 overflow-hidden">
             
@@ -133,7 +132,7 @@
             </a>
 
             <!-- Card 2: Reports (Purple) -->
-            <a href="#" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-r-4 border-indigo-500 overflow-hidden">
+                <a href="{% url 'reports:case_report' %}" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-r-4 border-indigo-500 overflow-hidden">
                 <div class="absolute top-0 left-0 w-24 h-24 bg-indigo-50 rounded-full -translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-500"></div>
                 <div class="relative z-10 flex items-center justify-between">
                     <div class="flex items-center gap-4">

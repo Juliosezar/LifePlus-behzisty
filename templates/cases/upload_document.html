@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>آپلود مدارک</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
+    <script type="text/javascript" src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .hidden { display: none; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-2xl bg-white rounded-3xl shadow-xl overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-blue-600 p-6 text-white flex justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold">آپلود مدرک جدید</h1>
+                <p class="text-sm text-blue-100 mt-1">پرونده: {{ case.first_name }} {{ case.last_name }}</p>
+            </div>
+            <a href="{% url 'cases:case_detail' case.pk %}" class="bg-white/20 hover:bg-white/30 p-2 rounded-xl transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- Form -->
+        <div class="p-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+
+                <!-- Error Messages -->
+                {% if form.errors %}
+                <div class="bg-red-50 text-red-600 p-4 rounded-xl text-sm mb-4">
+                    <p class="font-bold">لطفا خطاها را بررسی کنید:</p>
+                    {{ form.errors }}
+                </div>
+                {% endif %}
+
+                <!-- 1. Document Type -->
+                <div>
+                    <label class="block mb-2 text-sm font-bold text-gray-700">{{ form.doc_type.label }}</label>
+                    {{ form.doc_type }}
+                </div>
+
+                <!-- 2. Picture Upload -->
+                <div>
+                    <label class="block mb-2 text-sm font-bold text-gray-700">{{ form.picture.label }}</label>
+                    <div class="flex items-center justify-center w-full">
+                        <label for="id_picture" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
+                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                <svg class="w-8 h-8 mb-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                <p class="text-sm text-gray-500"><span class="font-semibold">برای آپلود کلیک کنید</span></p>
+                            </div>
+                            <!-- Render the actual input but styled -->
+                            {{ form.picture }} 
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 3. Conditional Fields -->
+                
+                <!-- A: Commission Fields (Date + Duration) -->
+                <div id="commition-fields" class="hidden space-y-6 border-t pt-4 border-gray-100 fade-in">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <h3 class="text-blue-800 font-bold text-sm mb-4">اطلاعات کمیسیون</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block mb-2 text-sm text-gray-700">{{ form.date.label }}</label>
+                                <div class="relative">
+                                    {{ form.date }}
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block mb-2 text-sm text-gray-700">{{ form.expiry_diuration.label }}</label>
+                                {{ form.expiry_diuration }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- B: Disability Card Fields (Expiry Date only) -->
+                <div id="card-fields" class="hidden space-y-6 border-t pt-4 border-gray-100 fade-in">
+                    <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                        <h3 class="text-yellow-800 font-bold text-sm mb-4">اطلاعات کارت معلولیت</h3>
+                        <div>
+                            <label class="block mb-2 text-sm text-gray-700">{{ form.expiry_date.label }}</label>
+                            <div class="relative">
+                                {{ form.expiry_date }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="pt-4">
+                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-1">
+                        ذخیره مدرک
+                    </button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Datepicker
+        jalaliDatepicker.startWatch({ minDate: "attr", maxDate: "attr" });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const docTypeSelect = document.getElementById('id_doc_type');
+            
+            // Containers
+            const commitionFields = document.getElementById('commition-fields');
+            const cardFields = document.getElementById('card-fields');
+            
+            // Inputs (to clear them when hidden)
+            const dateInput = document.getElementById('id_date');
+            const durationInput = document.getElementById('id_expiry_diuration');
+            const expiryInput = document.getElementById('id_expiry_date');
+
+            function toggleFields() {
+                const selected = docTypeSelect.value;
+
+                // 1. Hide everything first
+                commitionFields.classList.add('hidden');
+                cardFields.classList.add('hidden');
+
+                // 2. Logic
+                if (selected === 'commition') {
+                    // Show Commission Fields
+                    commitionFields.classList.remove('hidden');
+                    // Clear Card fields to be safe
+                    if(expiryInput) expiryInput.value = '';
+                } 
+                else if (selected === 'disabiliti_card') {
+                    // Show Card Fields
+                    cardFields.classList.remove('hidden');
+                    // Clear Commission fields
+                    if(dateInput) dateInput.value = '';
+                    if(durationInput) durationInput.value = '';
+                } 
+                else {
+                    // Clear ALL conditional fields
+                    if(dateInput) dateInput.value = '';
+                    if(durationInput) durationInput.value = '';
+                    if(expiryInput) expiryInput.value = '';
+                }
+            }
+
+            if (docTypeSelect) {
+                // Run on load (in case browser cached selection or validation error occurred)
+                toggleFields();
+                // Run on change
+                docTypeSelect.addEventListener('change', toggleFields);
+            }
+        });
+    </script>
+
+</body>
+</html>
