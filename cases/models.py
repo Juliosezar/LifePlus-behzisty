@@ -307,7 +307,7 @@ class CaseDocuments(models.Model):
 
 
 class Visit(models.Model):
-    case = models.ForeignKey(Case, on_delete=models.CASCADE)
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='visits')
     visit_date = jmodels.jDateField()
     
     def __str__(self):

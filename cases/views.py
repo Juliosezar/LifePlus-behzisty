@@ -188,7 +188,8 @@ class CaseDetailView(LoginRequiredMixin, DetailView):
             'recovered_reasons',
             'family',
             'casenotes_set',
-            'casedocuments_set' # Add this to fetch documents efficiently
+            'casedocuments_set', 
+            'visits'
         )
 
 
@@ -197,7 +198,7 @@ class CaseDeleteView(LoginRequiredMixin, DeleteView):
     template_name = 'cases/case_confirm_delete.html'
 
     def get_success_url(self):
-        return reverse_lazy('cases:case_detail', kwargs={'pk': self.object.pk})
+        return reverse_lazy('accounts:home')
 
 
 

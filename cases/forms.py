@@ -43,7 +43,11 @@ class CaseForm(forms.ModelForm):
             },
             'gender': {
                 'required': 'لطفا جنسیت را انتخاب کنید.',
-            }
+            },
+            'case_type': {
+                'required': 'لطفا نوع پرونده را انتخاب کنید.',
+            },
+
         }
 
     def __init__(self, *args, **kwargs):
