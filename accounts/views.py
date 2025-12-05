@@ -8,7 +8,6 @@ from django.shortcuts import redirect
 from .forms import SearchForm
 
 
-
 class CustomLoginView(LoginView):
     template_name = 'accounts/login.html'
     fields = '__all__'
@@ -24,7 +23,7 @@ def logout_view(request):
     return redirect('login')
 
 
-class HomeView(FormView):
+class HomeView(LoginRequiredMixin, FormView):
     template_name = 'accounts/home.html'
     form_class = SearchForm
 

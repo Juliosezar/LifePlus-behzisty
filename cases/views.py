@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.views.generic import DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
@@ -13,6 +13,15 @@ from .forms import (
     CaseFamilyMemberFormSet,
     CaseNotesFormSet
 )
+from .models import Case, CaseDocuments
+from .forms import CaseDocumentForm
+from django.views.generic import View
+from django.db.models import Q
+from django.views.generic import ListView
+from .models import Case
+
+
+
 
 # ==========================================
 # 1. CREATE VIEW
@@ -166,10 +175,6 @@ class CaseUpdateView(LoginRequiredMixin, UpdateView):
             return self.render_to_response(self.get_context_data(form=form))
 
 
-# ==========================================
-# 3. DETAIL VIEW
-# ==========================================
-# views.py
 
 class CaseDetailView(LoginRequiredMixin, DetailView):
     model = Case
@@ -185,9 +190,8 @@ class CaseDetailView(LoginRequiredMixin, DetailView):
             'casenotes_set',
             'casedocuments_set' # Add this to fetch documents efficiently
         )
-# ==========================================
-# 4. DELETE VIEW
-# ==========================================
+
+
 class CaseDeleteView(LoginRequiredMixin, DeleteView):
     model = Case
     template_name = 'cases/case_confirm_delete.html'
@@ -198,11 +202,6 @@ class CaseDeleteView(LoginRequiredMixin, DeleteView):
 
 
 
-
-from django.shortcuts import get_object_or_404, redirect
-from .models import Case, CaseDocuments
-from .forms import CaseDocumentForm
-from django.views.generic import View
 
 class CaseDocumentUploadView(LoginRequiredMixin, CreateView):
     model = CaseDocuments
@@ -243,10 +242,6 @@ class DeleteCaseDocumentView(LoginRequiredMixin, View):
         # Redirect back to the case detail page
         return redirect('cases:case_detail', pk=case_id)
 
-
-from django.db.models import Q
-from django.views.generic import ListView
-from .models import Case
 
 
 class CaseSearchView(LoginRequiredMixin, ListView):
