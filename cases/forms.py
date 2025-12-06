@@ -1,12 +1,15 @@
 from django import forms
 from django_jalali.forms import jDateInput
-from .models import Case, Disability, CaseNotes, ReasonCase, CaseFamilyMembers, RecoveredReasonCase
 from django.forms import inlineformset_factory
 from django.core.exceptions import ValidationError
-import jdatetime  # Import this
+from django import forms
+from .models import CaseDocuments, Case, CaseDocuments, Visit, Demands, Services_provided ,Disability, CaseNotes, ReasonCase, CaseFamilyMembers, RecoveredReasonCase
+
+from django import forms
+from django_jalali.forms import jDateInput
+import jdatetime 
 
 class CaseForm(forms.ModelForm):
-    # 1. Change this to CharField to bypass strict initial validation
     date_of_birth = forms.CharField(
         required=False,
         widget=jDateInput(attrs={
@@ -177,13 +180,6 @@ class CaseForm(forms.ModelForm):
                 raise ValidationError("شماره شبا اشتباه است.(باید 24 رقم باشد.)")
         return bank_shaba_number
 
-    def clean_case_type(self):
-        case_type = self.cleaned_data['case_type']
-        print(case_type)
-        if case_type is None:
-            raise ValidationError("لطفا نوع پرونده را انتخاب کنید.")
-        return case_type
-
 def check_national_id(national_id):
     control_num = int(national_id[9:])
     num = national_id
@@ -214,7 +210,6 @@ class DisabilityForm(forms.ModelForm):
                 'class': 'w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3'
             })
 
-# 3. Create the Formset
 CaseDisabilityFormSet = inlineformset_factory(
     Case, 
     Disability, 
@@ -239,7 +234,6 @@ class CaseNotesForm(forms.ModelForm):
                 'class': 'w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3'
             })
 
-# 2. Create the Formset
 CaseNotesFormSet = inlineformset_factory(
     Case, 
     CaseNotes, 
@@ -249,7 +243,6 @@ CaseNotesFormSet = inlineformset_factory(
 )
 
 
-# 1. Create the Reason Form
 class ReasonCaseForm(forms.ModelForm):
     class Meta:
         model = ReasonCase
@@ -262,7 +255,6 @@ class ReasonCaseForm(forms.ModelForm):
                 'class': 'w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3'
             })
 
-# 2. Create the Formset
 ReasonCaseFormSet = inlineformset_factory(
     Case, 
     ReasonCase, 
@@ -272,7 +264,6 @@ ReasonCaseFormSet = inlineformset_factory(
 )
 
 
-# 1. Family Member Form
 class CaseFamilyMemberForm(forms.ModelForm):
     class Meta:
         model = CaseFamilyMembers
@@ -302,7 +293,6 @@ class CaseFamilyMemberForm(forms.ModelForm):
                     raise ValidationError("کد ملی اشتباه است.")
         return national_id
 
-# 2. Family Formset
 CaseFamilyMemberFormSet = inlineformset_factory(
     Case,
     CaseFamilyMembers,
@@ -311,7 +301,6 @@ CaseFamilyMemberFormSet = inlineformset_factory(
     can_delete=True
 )
 
-# 1. Create Form for Recovered Case
 class RecoveredReasonCaseForm(forms.ModelForm):
     class Meta:
         model = RecoveredReasonCase
@@ -339,28 +328,7 @@ RecoveredReasonCaseFormSet = inlineformset_factory(
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-from django import forms
-from django_jalali.forms import jDateInput
-from .models import CaseDocuments
-
-from django import forms
-from django_jalali.forms import jDateInput
-from .models import Case, CaseDocuments
-import jdatetime # Make sure this is imported
-
 class CaseDocumentForm(forms.ModelForm):
-    # 1. Override fields to CharField to accept the raw string from picker
     date = forms.CharField(
         required=False,
         widget=jDateInput(attrs={
@@ -399,11 +367,9 @@ class CaseDocumentForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            # Apply Tailwind styles
             existing_classes = field.widget.attrs.get('class', '')
             field.widget.attrs['class'] = f"{existing_classes} w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3"
 
-    # --- MANUAL DATE CLEANING LOGIC ---
 
     def _clean_jalali_date(self, field_name):
         """Helper to parse Jalali dates manually"""
@@ -412,11 +378,9 @@ class CaseDocumentForm(forms.ModelForm):
         if not data:
             return None
 
-        # 1. Convert Persian digits to English (e.g. ۱۴۰۲ -> 1402)
         trans_table = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
         data = data.translate(trans_table)
 
-        # 2. Parse the string
         try:
             if '/' in data:
                 return jdatetime.datetime.strptime(data, '%Y/%m/%d').date()
@@ -432,3 +396,91 @@ class CaseDocumentForm(forms.ModelForm):
 
     def clean_expiry_date(self):
         return self._clean_jalali_date('expiry_date')
+
+
+
+class DemandForm(forms.ModelForm):
+    class Meta:
+        model = Demands
+        fields = ['request']
+        widgets = {
+            'request': forms.Textarea(attrs={'rows': 3, 'placeholder': 'شرح درخواست مددجو...'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['request'].widget.attrs.update({
+            'class': 'w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3'
+        })
+
+class ServiceProvidedForm(forms.ModelForm):
+    class Meta:
+        model = Services_provided
+        fields = ['service']
+        widgets = {
+            'service': forms.Textarea(attrs={'rows': 3, 'placeholder': 'شرح خدمت ارائه شده...'}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['service'].widget.attrs.update({
+            'class': 'w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3'
+        })
+
+class CaseNoteForm(forms.ModelForm):
+    class Meta:
+        model = CaseNotes
+        fields = ['note']
+        widgets = {
+            'note': forms.Textarea(attrs={
+                'rows': 5, 
+                'placeholder': 'متن یادداشت، مشاهدات یا توضیحات تکمیلی خود را اینجا بنویسید...'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['note'].widget.attrs.update({
+            'class': 'w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-4'
+        })
+
+
+
+
+class VisitForm(forms.ModelForm):
+    visit_date = forms.CharField(
+        label='تاریخ بازدید',
+        widget=jDateInput(attrs={
+            'class': 'text-left', 
+            'placeholder': '1402/01/01', 
+            'data-jdp': ''
+        })
+    )
+
+    class Meta:
+        model = Visit
+        fields = ['visit_date']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['visit_date'].widget.attrs.update({
+            'class': 'w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-indigo-500 focus:border-indigo-500 block p-4 text-center'
+        })
+
+    def clean_visit_date(self):
+        data = self.cleaned_data.get('visit_date')
+        if not data:
+            return None
+        trans_table = str.maketrans('۰۱۲۳۴۵۶۷۸۹', '0123456789')
+        data = data.translate(trans_table)
+
+        try:
+            if '/' in data:
+                return jdatetime.datetime.strptime(data, '%Y/%m/%d').date()
+            elif '-' in data:
+                return jdatetime.datetime.strptime(data, '%Y-%m-%d').date()
+            else:
+                raise forms.ValidationError("فرمت تاریخ نامعتبر است")
+        except ValueError:
+            raise forms.ValidationError("تاریخ نامعتبر است. مثال: 1402/01/01")
+

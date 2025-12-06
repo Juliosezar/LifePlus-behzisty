@@ -14,7 +14,6 @@ class CustomLoginView(LoginView):
     redirect_authenticated_user = True
     
     def get_success_url(self):
-        # Redirect to 'home' after successful login
         return reverse_lazy('accounts:home')
 
 
@@ -28,8 +27,5 @@ class HomeView(LoginRequiredMixin, FormView):
     form_class = SearchForm
 
     def __init__(self, *args, **kwargs):
-        from cases.tmp import move, upload
-        #move()
-        #upload()
         super().__init__(*args, **kwargs)
 

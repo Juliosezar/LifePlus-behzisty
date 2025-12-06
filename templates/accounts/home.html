@@ -1,12 +1,36 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <title>Dashboard</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد مدیریت</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Vazirmatn Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
     
-    {% include 'base_head.html' %}
     <style>
         body { font-family: 'Vazirmatn', sans-serif; }
-        /* Smooth fade for the logout dropdown */
+        
+        /* Entrance Animation */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 0.6s ease-out forwards;
+        }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Staggered Delays */
+        .delay-100 { animation-delay: 100ms; }
+        .delay-200 { animation-delay: 200ms; }
+        .delay-300 { animation-delay: 300ms; }
+        .delay-400 { animation-delay: 400ms; }
+        .delay-500 { animation-delay: 500ms; }
+        .delay-600 { animation-delay: 600ms; }
+
+        /* Dropdown Animation */
         .group:hover .logout-menu {
             opacity: 1;
             visibility: visible;
@@ -14,53 +38,55 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen">
+<body class="bg-gray-100 text-gray-800 min-h-screen relative overflow-x-hidden">
 
     <!-- 1. Navbar -->
-    <nav class="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm px-6 py-4 transition-all duration-300">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             
-            <!-- User Profile Section (Left) -->
-            <div class="relative group z-50">
-                <button class="flex items-center gap-3 text-gray-700 hover:text-blue-600 transition-colors py-2">
-                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <!-- User Profile (Left) -->
+            <div class="relative group">
+                <button class="flex items-center gap-3 bg-gray-50 hover:bg-white px-3 py-2 rounded-2xl transition-all duration-300 border border-transparent hover:border-gray-200 hover:shadow-md">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                     </div>
-                    <span class="font-bold text-lg">{{ user.username }}</span>
-                    <!-- Down arrow -->
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-5 h-5 text-gray-400 group-hover:rotate-180 transition-transform duration-200">
+                    <div class="text-right hidden sm:block">
+                        <span class="block font-bold text-sm text-gray-800">{{ user.username }}</span>
+                        <span class="block text-[10px] text-green-600 font-medium">آنلاین</span>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-4 h-4 text-gray-400 group-hover:rotate-180 transition-transform duration-300">
                         <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
                     </svg>
                 </button>
 
-                <!-- Hidden Logout Button (Shows on Hover) -->
-                <div class="logout-menu absolute right-0 top-full pt-2 opacity-0 invisible transform -translate-y-2 transition-all duration-200 ease-out w-48">
-                    <div class="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden p-1">
-                        <!-- Date Display (Optional, based on your image) -->
-                        <div class="px-4 py-2 text-xs text-gray-400 border-b border-gray-100 mb-1">
-                            امروز: 1404/09/12 <!-- You can replace this with dynamic date -->
+                <!-- Dropdown -->
+                <div class="logout-menu absolute left-0 top-full pt-4 opacity-0 invisible transform -translate-y-4 transition-all duration-300 ease-out w-56 z-50">
+                    <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden p-2">
+                        <div class="px-3 py-2 text-xs text-gray-500 font-mono border-b border-gray-100 mb-1 text-center">
+                             {% now "Y/m/d" %}
                         </div>
-                        <a href="{% url 'accounts:logout' %}" class="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
-                            </svg>
+                        <a href="{% url 'accounts:logout' %}" class="flex items-center gap-3 px-3 py-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-colors text-sm font-bold group/item">
+                            <span class="bg-red-100 p-1.5 rounded-lg group-hover/item:bg-red-200 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                                </svg>
+                            </span>
                             خروج از حساب
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Website Name & Icon (Right) -->
+            <!-- Brand (Right) -->
             <div class="flex items-center gap-3">
-                <div class="text-right">
-                    <h1 class="font-bold text-gray-800 text-lg">سامانه اطلاعاتی +زندگی</h1>
-                    <p class="text-xs text-gray-500">پنل مدیریت یکپارچه</p>
+                <div class="text-right hidden sm:block">
+                    <h1 class="font-bold text-gray-800 text-lg tracking-tight">سامانه اطلاعاتی <span class="text-blue-600">+زندگی</span></h1>
+                    <p class="text-xs text-gray-400">پنل مدیریت یکپارچه</p>
                 </div>
-                <div class="bg-red-500 text-white p-2 rounded-xl shadow-lg shadow-red-200">
-                    <!-- Heart/Plus Icon -->
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                <div class="bg-gradient-to-br from-blue-600 to-violet-600 text-white p-2.5 rounded-2xl shadow-lg shadow-blue-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
                 </div>
@@ -70,117 +96,144 @@
     </nav>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto px-4 py-12 space-y-12">
+    <main class="max-w-6xl mx-auto px-4 py-10 space-y-12">
 
         <!-- 2. Search Bar Section -->
-<!-- 2. Search Bar Section (Updated) -->
-<div class="w-full">
-    <form method="GET" action="{% url 'cases:case_search' %}" class="relative max-w-5xl mx-auto"> 
-        <!-- White Container -->
-        <div class="flex items-center bg-white rounded-2xl shadow-md border-2 border-transparent focus-within:border-blue-500 focus-within:shadow-blue-200 transition-all duration-300 overflow-hidden">
-            
-            <!-- Search Icon (Visual only) -->
-            <div class="mr-4 text-gray-400">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
-                </svg>
+        <div class="w-full px-2 fade-up">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-black text-gray-800 mb-2">جستجوی پرونده</h2>
             </div>
-
-            <!-- The Input Field -->
-            <div class="flex-grow">
-                {{ form.search }}
-            </div>
-
-            <!-- Submit Button -->
-            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 m-1 rounded-xl transition-colors flex items-center gap-2 shadow-lg shadow-blue-500/30">
-                <span>جستجو</span>
-                <!-- Arrow Icon -->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5 rotate-180">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                </svg>
-            </button>
             
+            <form method="GET" action="{% url 'cases:case_search' %}" class="relative w-full max-w-2xl mx-auto group">
+                <div class="relative flex items-center bg-white rounded-2xl shadow-lg border border-gray-100 p-2 transition-transform duration-300 group-focus-within:scale-[1.02] group-focus-within:shadow-xl group-focus-within:border-blue-300">
+                    
+                    <div class="mr-3 text-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
+                    </div>
+
+                    <div class="flex-grow">
+                        {{ form.search }}
+                    </div>
+
+                    <button type="submit" class="bg-gray-900 hover:bg-black text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-2">
+                        <span>جستجو</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 rotate-180">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                        </svg>
+                    </button>
+                </div>
+            </form>
         </div>
 
-    </form>
-</div>
+        <!-- 3. Dashboard Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        <!-- 3. Quick Access Dashboard -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            <!-- Card 1: New File (Green) -->
-                <a href="{% url 'cases:new_case' %}" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-r-4 border-emerald-500 overflow-hidden">
-                <div class="absolute top-0 left-0 w-24 h-24 bg-emerald-50 rounded-full -translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                            </svg>
-                        </div>
-                        <span class="text-xl font-bold text-gray-800">پرونده جدید</span>
+            <!-- 1. New Case (Emerald) -->
+            <a href="{% url 'cases:new_case' %}" class="fade-up delay-100 group relative bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 overflow-hidden">
+                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-emerald-400 to-teal-500"></div>
+                <div class="flex flex-col h-full justify-between relative z-10">
+                    <div class="p-4 bg-emerald-50 text-emerald-600 rounded-2xl w-fit mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 012.624 21c-1.127-.46-1.127-1.765 1.376-1.765z" />
+                        </svg>
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-gray-300 group-hover:text-emerald-500 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                    </svg>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">پرونده جدید</h3>
+                        <p class="text-sm text-gray-500">ثبت اطلاعات مددجوی جدید</p>
+                    </div>
                 </div>
             </a>
 
-            <!-- Card 2: Reports (Purple) -->
-                <a href="{% url 'reports:case_report' %}" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-r-4 border-indigo-500 overflow-hidden">
-                <div class="absolute top-0 left-0 w-24 h-24 bg-indigo-50 rounded-full -translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="p-3 bg-indigo-100 text-indigo-600 rounded-xl">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                            </svg>
-                        </div>
-                        <span class="text-xl font-bold text-gray-800">گزارش گیری</span>
+            <!-- 2. Reports (Indigo) -->
+            <a href="{% url 'reports:case_report' %}" class="fade-up delay-200 group relative bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 overflow-hidden">
+                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-indigo-400 to-purple-500"></div>
+                <div class="flex flex-col h-full justify-between relative z-10">
+                    <div class="p-4 bg-indigo-50 text-indigo-600 rounded-2xl w-fit mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                        </svg>
                     </div>
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-gray-300 group-hover:text-indigo-500 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-                    </svg>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">گزارش گیری</h3>
+                        <p class="text-sm text-gray-500">فیلتر پیشرفته و خروجی اکسل</p>
+                    </div>
                 </div>
             </a>
 
-            <!-- Card 3: Expired Commissions (Red) -->
-            <a href="#" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-r-4 border-rose-500 overflow-hidden">
-                <div class="absolute top-0 left-0 w-24 h-24 bg-rose-50 rounded-full -translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="p-3 bg-rose-100 text-rose-600 rounded-xl">
+            <!-- 3. Expired Commissions (Rose) -->
+            <a href="{% url 'reports:expired_commissions' %}" class="fade-up delay-300 group relative bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 overflow-hidden">
+                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-rose-400 to-pink-500"></div>
+                <div class="flex flex-col h-full justify-between relative z-10">
+                    <div class="flex justify-between items-start">
+                        <div class="p-4 bg-rose-50 text-rose-600 rounded-2xl w-fit mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
                             </svg>
                         </div>
-                        <span class="text-lg font-bold text-gray-800">کمیسیون‌های منقضی شده</span>
                     </div>
-                    <div class="bg-rose-100 text-rose-600 text-xs font-bold px-2 py-1 rounded-lg">!</div>
-                </div>
-            </a>
-
-            <!-- Card 4: Expired Home Visits (Orange) -->
-            <a href="#" class="group relative bg-white p-6 rounded-2xl shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-r-4 border-orange-500 overflow-hidden">
-                <div class="absolute top-0 left-0 w-24 h-24 bg-orange-50 rounded-full -translate-x-8 -translate-y-8 group-hover:scale-150 transition-transform duration-500"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="p-3 bg-orange-100 text-orange-600 rounded-xl">
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-                            </svg>
-                        </div>
-                        <span class="text-lg font-bold text-gray-800">بازدید منزل‌های منقضی شده</span>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">کمیسیون‌های منقضی</h3>
+                        <p class="text-sm text-gray-500">موارد نیازمند تمدید کمیسیون</p>
                     </div>
                 </div>
             </a>
 
-            <!-- Card 5: Logs (Full Width - Gray) -->
-            <a href="#" class="md:col-span-2 group relative bg-gray-50 p-4 rounded-xl shadow-sm hover:bg-white hover:shadow-md transition-all duration-300 border border-gray-200 flex items-center justify-center gap-3 text-gray-600 hover:text-gray-900">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+            <!-- 4. Expired Visits (Orange) -->
+            <a href="{% url 'reports:expired_visits' %}" class="fade-up delay-400 group relative bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 overflow-hidden">
+                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-orange-400 to-amber-500"></div>
+                <div class="flex flex-col h-full justify-between relative z-10">
+                    <div class="p-4 bg-orange-50 text-orange-600 rounded-2xl w-fit mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">بازدیدهای منقضی</h3>
+                        <p class="text-sm text-gray-500">عدم بازدید بیش از ۶ ماه</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 5. Expired Disability Cards (Cyan) - NEW -->
+            <a href="{% url 'reports:expired_cards' %}" class="fade-up delay-500 group relative bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 overflow-hidden">
+                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-cyan-400 to-blue-500"></div>
+                <div class="flex flex-col h-full justify-between relative z-10">
+                    <div class="p-4 bg-cyan-50 text-cyan-600 rounded-2xl w-fit mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 9h3.75M15 12h3.75M15 15h3.75M4.5 19.5h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5zm6-10.125a1.875 1.875 0 11-3.75 0 1.875 1.875 0 013.75 0zm1.294 6.336a6.721 6.721 0 01-1.294-1.54 6.721 6.721 0 01-1.294 1.54c-1.005.872-1.538 1.962-1.488 3.125H12c.05-1.163-.483-2.253-1.488-3.125z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">کارت‌های منقضی</h3>
+                        <p class="text-sm text-gray-500">پایان اعتبار کارت معلولیت</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 6. Client Demands (Yellow) - NEW -->
+                <a href="{% url 'reports:all_demands' %}" class="fade-up delay-600 group relative bg-white p-6 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-500 border border-gray-100 overflow-hidden">
+                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-l from-yellow-400 to-amber-500"></div>
+                <div class="flex flex-col h-full justify-between relative z-10">
+                    <div class="p-4 bg-yellow-50 text-yellow-600 rounded-2xl w-fit mb-4 group-hover:scale-110 transition-transform duration-500 shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-1">درخواست‌ها</h3>
+                        <p class="text-sm text-gray-500">لیست درخواست‌های مراجعین</p>
+                    </div>
+                </div>
+            </a>
+
+            <!-- 7. Logs (Full Width - Slate) -->
+            <a href="#" class="fade-up delay-600 md:col-span-3 group relative bg-white p-4 rounded-3xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 flex items-center justify-center gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6 text-gray-400 group-hover:text-gray-800 transition-colors">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
                 </svg>
-                <span class="font-medium text-lg">مشاهده Logs سیستم</span>
+                <span class="font-medium text-gray-600 group-hover:text-gray-900 transition-colors">مشاهده Logs سیستم</span>
             </a>
 
         </div>

@@ -2,25 +2,35 @@
 <html lang="fa" dir="rtl">
 <head>
     <title>پرونده: {{ case.first_name }} {{ case.last_name }}</title>
-        {% include 'base_head.html' %}
+    {% include "base_head.html" %}
+    
     <style>
         body { font-family: 'Vazirmatn', sans-serif; }
         .hidden { display: none !important; }
-        /* Animation for switching tabs */
+        
+        /* Fade Animation */
         .fade-in { animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        
+        /* Custom Scrollbar for inner lists */
+        .custom-scroll::-webkit-scrollbar { width: 4px; }
+        .custom-scroll::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen pb-20">
 
     <!-- 1. HEADER -->
     <header class="bg-white shadow-sm sticky top-0 z-50">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            
+            <!-- Title -->
             <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                <span class="bg-blue-100 text-blue-600 p-2 rounded-lg">
+                <span class="bg-blue-100 text-blue-600 p-2 rounded-lg shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
                     </svg>
@@ -28,33 +38,39 @@
                 {{ case.first_name }} {{ case.last_name }}
             </h1>
             
+            <!-- Buttons -->
             <div class="flex gap-2">
-                <a href="{% url 'cases:case_edit' case.pk %}" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg text-sm font-medium transition">
+                <a href="{% url 'cases:case_edit' case.pk %}" class="text-blue-600 hover:text-blue-800 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 border border-blue-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     ویرایش
                 </a>
-                <a href="{% url 'accounts:home' %}" class="text-gray-500 hover:text-gray-700 bg-gray-50 px-3 py-2 rounded-lg text-sm font-medium transition">
+                
+                <a href="{% url 'accounts:home' %}" class="text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 border border-gray-200 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
                     بازگشت
                 </a>
             </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 py-6">
+    <main class="max-w-6xl mx-auto px-4 py-6">
 
         <!-- 2. TAB NAVIGATION -->
-        <div class="flex w-full max-w-lg mx-auto bg-blue-100 rounded-full overflow-hidden border border-gray-400 p-0 mb-8 shadow-inner relative">
-            <button id="tab-btn-info" onclick="switchTab('info')" class="flex-1 py-2.5 text-center transition-all duration-300 font-bold text-lg cursor-pointer select-none bg-slate-900 text-white shadow-md">اطلاعات</button>
-            <button id="tab-btn-docs" onclick="switchTab('docs')" class="flex-1 py-2.5 text-center transition-all duration-300 font-bold text-lg cursor-pointer select-none text-gray-700 hover:bg-blue-200">مدارک</button>
+        <div class="flex w-full max-w-md mx-auto bg-blue-100/80 rounded-full overflow-hidden border border-blue-200 p-1 mb-8 shadow-inner relative backdrop-blur-sm">
+            <button id="tab-btn-info" onclick="switchTab('info')" class="flex-1 py-2.5 rounded-full text-center transition-all duration-300 font-bold text-lg cursor-pointer select-none bg-white text-blue-800 shadow-md">اطلاعات پرونده</button>
+            <button id="tab-btn-docs" onclick="switchTab('docs')" class="flex-1 py-2.5 rounded-full text-center transition-all duration-300 font-bold text-lg cursor-pointer select-none text-gray-600 hover:text-blue-700">مدارک و تصاویر</button>
         </div>
 
-        <!-- CONTENT SECTION 1: INFORMATION -->
+        <!-- =========================================
+             CONTENT: INFORMATION TAB
+             ========================================= -->
         <div id="content-info" class="space-y-6 fade-in">
             
-            <!-- A. Identity & Status -->
+            <!-- SECTION 1: IDENTITY & STATUS -->
             <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
                 <div class="bg-slate-50 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
                     <h2 class="font-bold text-slate-700 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                        <span class="bg-slate-200 p-1 rounded-md"><svg class="w-5 h-5 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg></span>
                         اطلاعات هویتی و سکونت
                     </h2>
                     <span class="px-3 py-1 rounded-full text-xs font-bold {% if case.case_type == 'rehab' %}bg-yellow-100 text-yellow-700{% elif case.case_type == 'social' %}bg-rose-100 text-rose-700{% else %}bg-emerald-100 text-emerald-700{% endif %}">
@@ -70,12 +86,10 @@
                     <div><span class="block text-xs text-gray-400 mb-1">محل تولد</span><span class="font-bold text-gray-800">{{ case.birth_place|default:"-" }}</span></div>
                     <div><span class="block text-xs text-gray-400 mb-1">جنسیت</span><span class="font-bold text-gray-800">{{ case.get_gender_display }}</span></div>
                     
-                    <!-- Military (Only if set) -->
-                    {% if case.military_serveice %}
-                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت سربازی</span><span class="font-bold text-gray-800">{{ case.get_military_serveice_display }}</span></div>
-                    {% else %}
-                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت سربازی</span><span class="font-bold text-gray-800">-</span></div>
-                    {% endif %}
+                    <!-- Military -->
+                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت سربازی</span>
+                        <span class="font-bold text-gray-800">{% if case.military_serveice %}{{ case.get_military_serveice_display }}{% else %}-{% endif %}</span>
+                    </div>
 
                     <!-- Education -->
                     <div><span class="block text-xs text-gray-400 mb-1">تحصیلات</span><span class="font-bold text-gray-800">{{ case.get_education_display }}</span></div>
@@ -93,6 +107,7 @@
 
                     <!-- Housing & Rental Logic -->
                     <div><span class="block text-xs text-gray-400 mb-1">وضعیت مسکن</span><span class="font-bold text-gray-800">{{ case.get_housing_status_display }}</span></div>
+                    
                     {% if case.housing_status == 'rental' %}
                         <div class="bg-blue-50 p-2 rounded-lg border border-blue-100">
                             <span class="block text-xs text-blue-500 mb-1">مبلغ رهن</span>
@@ -114,11 +129,15 @@
                 </div>
             </div>
 
-            <!-- B. Conditional Sections (Disability / Reason / Recovered) -->
+            <!-- SECTION 2: CONDITIONAL DETAILS -->
             
+            <!-- A. DISABILITIES (Rehab) -->
             {% if case.disabilities.all %}
             <div class="bg-yellow-50 rounded-2xl shadow-sm border border-yellow-200 p-6">
-                <h3 class="font-bold text-yellow-900 mb-4 border-b border-yellow-200 pb-2">معلولیت‌ها</h3>
+                <h3 class="font-bold text-yellow-900 mb-4 border-b border-yellow-200 pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" /></svg>
+                    معلولیت‌ها
+                </h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {% for item in case.disabilities.all %}
                         <div class="bg-white p-3 rounded-lg text-sm text-gray-700 shadow-sm border border-yellow-100">
@@ -131,9 +150,13 @@
             </div>
             {% endif %}
 
+            <!-- B. SOCIAL REASONS (Social) -->
             {% if case.reasons.all %}
             <div class="bg-rose-50 rounded-2xl shadow-sm border border-rose-200 p-6">
-                <h3 class="font-bold text-rose-900 mb-4 border-b border-rose-200 pb-2">علت تشکیل پرونده</h3>
+                <h3 class="font-bold text-rose-900 mb-4 border-b border-rose-200 pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    علت تشکیل پرونده
+                </h3>
                 <div class="flex flex-wrap gap-2">
                     {% for item in case.reasons.all %}
                         <span class="bg-white px-3 py-1 rounded-lg text-sm text-rose-700 shadow-sm border border-rose-100">{{ item.get_reason_display }}</span>
@@ -142,9 +165,13 @@
             </div>
             {% endif %}
 
+            <!-- C. RECOVERED INFO (Recovered) -->
             {% if case.recovered_reasons.all %}
             <div class="bg-emerald-50 rounded-2xl shadow-sm border border-emerald-200 p-6">
-                <h3 class="font-bold text-emerald-900 mb-4 border-b border-emerald-200 pb-2">اطلاعات بهبود یافتگان</h3>
+                <h3 class="font-bold text-emerald-900 mb-4 border-b border-emerald-200 pb-2 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    اطلاعات بهبود یافتگان
+                </h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {% for item in case.recovered_reasons.all %}
                         <div class="bg-white p-3 rounded-lg text-sm text-gray-700 shadow-sm border border-emerald-100 space-y-1">
@@ -158,14 +185,13 @@
             </div>
             {% endif %}
 
-            <!-- C. Family & Counts -->
+            <!-- SECTION 3: FAMILY & COUNTS -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 class="font-bold text-teal-800 mb-4 flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    <span class="bg-teal-100 p-1 rounded-md"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg></span>
                     اعضای خانواده ({{ case.family.count }})
                 </h3>
                 
-                <!-- Counts Grid -->
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-center mb-6">
                     <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">فرزندان</span> <span class="font-bold text-lg text-teal-800">{{ case.children_count }}</span></div>
                     <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">تحت تکفل</span> <span class="font-bold text-lg text-teal-800">{{ case.dependents_count }}</span></div>
@@ -173,23 +199,22 @@
                     <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">خواهران</span> <span class="font-bold text-lg text-teal-800">{{ case.sisters_count }}</span></div>
                 </div>
                 
-                <!-- Family Table -->
                 {% if case.family.all %}
-                <div class="overflow-x-auto">
+                <div class="overflow-x-auto rounded-lg border border-gray-100">
                     <table class="w-full text-sm text-right text-gray-600">
                         <thead class="bg-gray-50 text-gray-700 text-xs uppercase">
                             <tr>
-                                <th class="px-3 py-2 rounded-r-lg">نسبت</th>
+                                <th class="px-3 py-2">نسبت</th>
                                 <th class="px-3 py-2">نام و نام خانوادگی</th>
                                 <th class="px-3 py-2">کد ملی</th>
                                 <th class="px-3 py-2">تحصیلات</th>
                                 <th class="px-3 py-2">شغل</th>
-                                <th class="px-3 py-2 rounded-l-lg">توضیحات</th>
+                                <th class="px-3 py-2">توضیحات</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             {% for member in case.family.all %}
-                            <tr>
+                            <tr class="hover:bg-teal-50/30 transition">
                                 <td class="px-3 py-3 font-bold text-teal-700">{{ member.get_relation_display }}</td>
                                 <td class="px-3 py-3">{{ member.first_name }} {{ member.last_name }}</td>
                                 <td class="px-3 py-3 font-mono text-xs">{{ member.national_id|default:"-" }}</td>
@@ -204,10 +229,10 @@
                 {% endif %}
             </div>
 
-            <!-- D. Financial Info -->
+            <!-- SECTION 4: FINANCIAL INFO -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                 <h3 class="font-bold text-gray-700 mb-4 border-b pb-2 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    <span class="bg-gray-100 p-1 rounded-md"><svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg></span>
                     اطلاعات بانکی
                 </h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
@@ -217,56 +242,128 @@
                 </div>
             </div>
 
-            <!-- E. Visit History (New Section) -->
-            <div class="bg-indigo-50 rounded-2xl shadow-sm border border-indigo-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-indigo-200 flex items-center gap-2">
-                    <span class="bg-indigo-200 p-1 rounded text-indigo-800"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></span>
-                    <h2 class="font-bold text-indigo-900">تاریخچه بازدیدها</h2>
-                </div>
-                <div class="p-6">
-                    {% if case.visit_set.all %}
-                        <div class="flex flex-wrap gap-3">
-                            {% for visit in case.visit_set.all %}
-                            <div class="flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-indigo-100">
-                                <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                <span class="font-mono font-bold text-indigo-700 text-sm" dir="ltr">{{ visit.visit_date|date:"Y/m/d" }}</span>
+            <!-- SECTION 5: COMPREHENSIVE HISTORY (Demands, Services, Visits, Notes) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- Left Column: Demands & Services -->
+                <div class="space-y-6">
+                    
+                    <!-- Demands -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-orange-50 px-4 py-3 border-b border-orange-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-white text-orange-600 p-1 rounded shadow-sm"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" /></svg></span>
+                                <h3 class="font-bold text-orange-800 text-sm">تاریخچه درخواست‌ها</h3>
                             </div>
-                            {% endfor %}
+                            <a href="{% url 'cases:case_services' case.pk %}" class="text-xs text-orange-700 hover:text-orange-900 font-bold bg-white/50 px-2 py-1 rounded hover:bg-white transition">افزودن +</a>
                         </div>
-                    {% else %}
-                        <p class="text-gray-500 text-center text-sm">هیچ بازدیدی ثبت نشده است.</p>
-                    {% endif %}
+                        <div class="p-4 space-y-2 max-h-60 overflow-y-auto custom-scroll">
+                            {% if case.demands.all %}
+                                {% for item in case.demands.all %}
+                                <div class="bg-orange-50/50 p-2 rounded-lg border border-orange-100 text-sm">
+                                    <p class="text-gray-800 font-medium">{{ item.request }}</p>
+                                    <span class="text-xs text-orange-400 block text-left" dir="ltr">{{ item.date|date:"Y/m/d" }}</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-gray-400 text-xs text-center">موردی ثبت نشده است.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Services -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-green-50 px-4 py-3 border-b border-green-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-white text-green-600 p-1 rounded shadow-sm"><svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></span>
+                                <h3 class="font-bold text-green-800 text-sm">خدمات ارائه شده</h3>
+                            </div>
+                            <a href="{% url 'cases:case_services' case.pk %}" class="text-xs text-green-700 hover:text-green-900 font-bold bg-white/50 px-2 py-1 rounded hover:bg-white transition">افزودن +</a>
+                        </div>
+                        <div class="p-4 space-y-2 max-h-60 overflow-y-auto custom-scroll">
+                            {% if case.services_provided.all %}
+                                {% for item in case.services_provided.all %}
+                                <div class="bg-green-50/50 p-2 rounded-lg border border-green-100 text-sm">
+                                    <p class="text-gray-800 font-medium">{{ item.service }}</p>
+                                    <span class="text-xs text-green-500 block text-left" dir="ltr">{{ item.date|date:"Y/m/d" }}</span>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-gray-400 text-xs text-center">موردی ثبت نشده است.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Column: Visits & Notes -->
+                <div class="space-y-6">
+                    
+                    <!-- Visits -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-indigo-50 px-4 py-3 border-b border-indigo-100 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-white text-indigo-600 p-1 rounded shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></span>
+                                <h3 class="font-bold text-indigo-900 text-sm">تاریخچه بازدیدها</h3>
+                            </div>
+                            <a href="{% url 'cases:add_visit' case.pk %}" class="text-xs text-indigo-700 hover:text-indigo-900 font-bold bg-white/50 px-2 py-1 rounded hover:bg-white transition">افزودن +</a>
+                        </div>
+                        <div class="p-4 max-h-60 overflow-y-auto custom-scroll">
+                            {% if case.visits.all %}
+                                <div class="flex flex-wrap gap-2">
+                                    {% for visit in case.visits.all %}
+                                    <div class="flex items-center gap-1 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100">
+                                        <span class="font-mono font-bold text-indigo-700 text-xs" dir="ltr">{{ visit.visit_date|date:"Y/m/d" }}</span>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-gray-400 text-xs text-center">هیچ بازدیدی ثبت نشده است.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="bg-white text-gray-500 p-1 rounded shadow-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></span>
+                                <h3 class="font-bold text-gray-700 text-sm">یادداشت‌ها</h3>
+                            </div>
+                            <a href="{% url 'cases:add_note' case.pk %}" class="text-xs text-blue-600 hover:underline">افزودن +</a>
+                        </div>
+                        
+                        <div class="p-4 space-y-3 max-h-80 overflow-y-auto custom-scroll">
+                            {% if case.casenotes_set.all %}
+                                {% for note in case.casenotes_set.all %}
+                                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 text-sm text-gray-700 leading-relaxed relative hover:bg-gray-100 transition">
+                                        <p>{{ note.note|linebreaksbr }}</p>
+                                        <div class="mt-2 text-xs text-gray-400 flex justify-between border-t border-gray-200 pt-2">
+                                            <span>توسط: <span class="font-bold text-gray-500">{{ note.added_by.username }}</span></span>
+                                            <span class="font-mono" dir="ltr">{{ note.date|date:"Y/m/d" }}</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="text-center py-6">
+                                    <p class="text-gray-400 text-xs">یادداشتی موجود نیست.</p>
+                                    <a href="{% url 'cases:add_note' case.pk %}" class="text-blue-500 text-xs mt-2 inline-block">اولین یادداشت را ثبت کنید</a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
                 </div>
             </div>
 
-            <!-- F. Notes -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
-                <h3 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                    یادداشت‌ها
-                </h3>
-                <div class="space-y-3">
-                    {% for note in case.casenotes_set.all %}
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm text-gray-700 leading-relaxed relative">
-                            {{ note.note }}
-                            <div class="mt-2 text-xs text-gray-400 flex justify-end gap-2">
-                                <span>ثبت شده توسط: <b>{{ note.added_by.username }}</b></span>
-                            </div>
-                        </div>
-                    {% empty %}
-                        <p class="text-gray-400 text-sm text-center">یادداشتی موجود نیست.</p>
-                    {% endfor %}
-                </div>
-            </div>
-
-        </div> <!-- End Info Content -->
+        </div> <!-- End Info Tab -->
 
 
         <!-- =========================================
-             CONTENT SECTION 2: DOCUMENTS (Images)
+             CONTENT: DOCUMENTS TAB
              ========================================= -->
         <div id="content-docs" class="hidden space-y-6 fade-in">
-            <!-- (Your existing document upload code goes here, unchanged) -->
+            
             <!-- Upload Button -->
             <div class="flex justify-end mb-4">
                 <a href="{% url 'cases:upload_document' case.pk %}" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl shadow-lg shadow-blue-500/30 transition transform hover:-translate-y-1">
@@ -331,7 +428,7 @@
 
     </main>
 
-    <!-- Modal & Scripts (Same as before) -->
+    <!-- DELETE MODAL -->
     <div id="delete-modal" class="fixed inset-0 z-[60] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-75 transition-opacity backdrop-blur-sm" onclick="closeDeleteModal()"></div>
         <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -344,7 +441,7 @@
                             </div>
                             <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-right">
                                 <h3 class="text-xl font-bold leading-6 text-gray-900" id="modal-title">حذف مدرک</h3>
-                                <div class="mt-2"><p class="text-sm text-gray-500">آیا مطمئن هستید؟</p></div>
+                                <div class="mt-2"><p class="text-sm text-gray-500">آیا از حذف این مدرک اطمینان دارید؟</p></div>
                             </div>
                         </div>
                     </div>
@@ -357,27 +454,29 @@
         </div>
     </div>
 
+    <!-- SCRIPTS -->
     <script>
         function switchTab(tabName) {
             const btnInfo = document.getElementById('tab-btn-info');
             const btnDocs = document.getElementById('tab-btn-docs');
             const contentInfo = document.getElementById('content-info');
             const contentDocs = document.getElementById('content-docs');
-            const activeClass = "bg-slate-900 text-white shadow-md";
-            const inactiveClass = "text-gray-700 hover:bg-blue-200";
+            const activeClass = "bg-white text-blue-800 shadow-md";
+            const inactiveClass = "text-gray-600 hover:text-blue-700";
 
             if (tabName === 'info') {
                 contentInfo.classList.remove('hidden');
                 contentDocs.classList.add('hidden');
-                btnInfo.className = `flex-1 py-2.5 text-center transition-all font-bold text-lg cursor-pointer ${activeClass}`;
-                btnDocs.className = `flex-1 py-2.5 text-center transition-all font-bold text-lg cursor-pointer ${inactiveClass}`;
+                btnInfo.className = `flex-1 py-2.5 rounded-full text-center transition-all duration-300 font-bold text-lg cursor-pointer select-none ${activeClass}`;
+                btnDocs.className = `flex-1 py-2.5 rounded-full text-center transition-all duration-300 font-bold text-lg cursor-pointer select-none ${inactiveClass}`;
             } else {
                 contentDocs.classList.remove('hidden');
                 contentInfo.classList.add('hidden');
-                btnDocs.className = `flex-1 py-2.5 text-center transition-all font-bold text-lg cursor-pointer ${activeClass}`;
-                btnInfo.className = `flex-1 py-2.5 text-center transition-all font-bold text-lg cursor-pointer ${inactiveClass}`;
+                btnDocs.className = `flex-1 py-2.5 rounded-full text-center transition-all duration-300 font-bold text-lg cursor-pointer select-none ${activeClass}`;
+                btnInfo.className = `flex-1 py-2.5 rounded-full text-center transition-all duration-300 font-bold text-lg cursor-pointer select-none ${inactiveClass}`;
             }
         }
+        
         const modal = document.getElementById('delete-modal');
         const deleteForm = document.getElementById('delete-form');
         function openDeleteModal(deleteUrl) { deleteForm.action = deleteUrl; modal.classList.remove('hidden'); }

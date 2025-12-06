@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+        {% include "base_head.html" %}
+    <title>لیست درخواست‌ها</title>
+    <style>body { font-family: 'Vazirmatn', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen pb-20">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span class="bg-amber-100 text-amber-600 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                    </svg>
+                </span>
+                لیست تمام درخواست‌ها
+            </h1>
+            <a href="{% url 'accounts:home' %}" class="text-gray-500 hover:text-gray-700 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                بازگشت به داشبورد
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-amber-50 px-6 py-4 border-b border-amber-100 flex justify-between items-center">
+                <h2 class="font-bold text-amber-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    لیست درخواست‌های ثبت شده
+                </h2>
+                <span class="bg-white px-3 py-1 rounded-full text-xs font-bold text-amber-600 shadow-sm">
+                    تعداد کل: {{ page_obj.paginator.count }}
+                </span>
+            </div>
+
+            {% if demands %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right text-gray-600">
+                    <thead class="bg-gray-50 text-gray-700 text-xs uppercase border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 font-bold w-1/5">نام مددجو</th>
+                            <th class="px-6 py-4 font-bold w-1/6">کد ملی</th>
+                            <th class="px-6 py-4 font-bold w-1/2">شرح درخواست</th>
+                            <th class="px-6 py-4 font-bold w-1/6 text-center">تاریخ ثبت</th>
+                            <th class="px-6 py-4 text-center">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for item in demands %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-bold text-gray-800">
+                                {{ item.case.first_name }} {{ item.case.last_name }}
+                            </td>
+                            <td class="px-6 py-4 font-mono">
+                                {{ item.case.national_id }}
+                            </td>
+                            <td class="px-6 py-4 text-gray-700 leading-relaxed">
+                                {{ item.request }}
+                            </td>
+                            <td class="px-6 py-4 text-center font-mono text-gray-500" dir="ltr">
+                                {{ item.date|date:"Y/m/d" }}
+                            </td>
+                            <td class="px-6 py-4 text-center">
+                                <a href="{% url 'cases:case_detail' item.case.pk %}" class="text-indigo-600 hover:text-indigo-900 font-bold text-xs bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">
+                                    پرونده
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="bg-gray-50 px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                
+                <!-- Previous Button -->
+                <div>
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}" class="flex items-center gap-1 bg-white border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                            قبلی
+                        </a>
+                    {% else %}
+                        <span class="flex items-center gap-1 bg-gray-100 border border-gray-200 text-gray-400 px-3 py-1.5 rounded-lg cursor-not-allowed text-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                            قبلی
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Page Indicator -->
+                <span class="text-sm text-gray-600 font-medium">
+                    صفحه {{ page_obj.number }} از {{ page_obj.paginator.num_pages }}
+                </span>
+
+                <!-- Next Button -->
+                <div>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}" class="flex items-center gap-1 bg-white border border-gray-300 text-gray-600 px-3 py-1.5 rounded-lg hover:bg-gray-100 transition text-sm">
+                            بعدی
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </a>
+                    {% else %}
+                        <span class="flex items-center gap-1 bg-gray-100 border border-gray-200 text-gray-400 px-3 py-1.5 rounded-lg cursor-not-allowed text-sm">
+                            بعدی
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                        </span>
+                    {% endif %}
+                </div>
+
+            </div>
+            {% endif %}
+            
+            {% else %}
+                <div class="p-10 text-center flex flex-col items-center justify-center">
+                    <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                    </div>
+                    <p class="text-gray-500 font-bold text-lg">هنوز درخواستی ثبت نشده است.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </main>
+
+</body>
+</html>

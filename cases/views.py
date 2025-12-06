@@ -1,31 +1,27 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db import transaction
-from .models import Case
 from .forms import (
     CaseForm,
     CaseDisabilityFormSet,
     ReasonCaseFormSet,
     RecoveredReasonCaseFormSet,
     CaseFamilyMemberFormSet,
-    CaseNotesFormSet
+    CaseNotesFormSet,
+    CaseDocumentForm,
+    CaseNoteForm,
+    DemandForm, 
+    ServiceProvidedForm, 
+    VisitForm
 )
-from .models import Case, CaseDocuments
-from .forms import CaseDocumentForm
+from .models import Case, CaseDocuments, CaseNotes,  Visit
 from django.views.generic import View
 from django.db.models import Q
-from django.views.generic import ListView
-from .models import Case
 
 
-
-
-# ==========================================
-# 1. CREATE VIEW
-# ==========================================
 class CaseCreateView(LoginRequiredMixin, CreateView):
     model = Case
     form_class = CaseForm
@@ -62,34 +58,28 @@ class CaseCreateView(LoginRequiredMixin, CreateView):
         family = context['family']
         notes = context['notes']
 
-        # 1. Check validity of ALL formsets *before* saving anything
         if (disabilities.is_valid() and reasons.is_valid() and 
             recovered.is_valid() and family.is_valid() and notes.is_valid()):
             
             with transaction.atomic():
-                # 2. Now it is safe to save the Parent Case
                 self.object = form.save()
                 
-                # 3. Assign the new Case instance to all formsets
                 disabilities.instance = self.object
                 reasons.instance = self.object
                 recovered.instance = self.object
                 family.instance = self.object
                 notes.instance = self.object
 
-                # 4. Save Standard Formsets
                 disabilities.save()
                 reasons.save()
                 recovered.save()
                 family.save()
 
-                # 5. Save Notes (Custom Logic for User)
                 note_instances = notes.save(commit=False)
                 for note in note_instances:
                     note.added_by = self.request.user
                     note.save()
                 
-                # Handle deleted notes
                 for deleted_object in notes.deleted_objects:
                     if deleted_object.pk:
                         deleted_object.delete()
@@ -97,14 +87,9 @@ class CaseCreateView(LoginRequiredMixin, CreateView):
             return super().form_valid(form)
         
         else:
-            # If any formset is invalid, we do NOT save the Case.
-            # We re-render the page with errors.
             return self.render_to_response(self.get_context_data(form=form))
 
 
-# ==========================================
-# 2. UPDATE VIEW
-# ==========================================
 class CaseUpdateView(LoginRequiredMixin, UpdateView):
     model = Case
     form_class = CaseForm
@@ -139,31 +124,24 @@ class CaseUpdateView(LoginRequiredMixin, UpdateView):
         family = context['family']
         notes = context['notes']
 
-        # 1. Check validity of ALL formsets first
         if (disabilities.is_valid() and reasons.is_valid() and 
             recovered.is_valid() and family.is_valid() and notes.is_valid()):
             
             with transaction.atomic():
-                # 2. Save the Parent Case changes
                 self.object = form.save()
-                
-                # 3. Save Standard Formsets (Handles Add/Update/Delete automatically)
                 disabilities.save()
                 reasons.save()
                 recovered.save()
                 family.save()
                 
-                # 4. Save Notes (Custom Logic)
                 notes.instance = self.object
                 note_instances = notes.save(commit=False)
                 
                 for note in note_instances:
-                    # Only set user for NEW notes
                     if not note.pk: 
                         note.added_by = self.request.user
                     note.save()
                 
-                # Manual delete for notes
                 for deleted_object in notes.deleted_objects:
                     if deleted_object.pk: 
                         deleted_object.delete()
@@ -171,7 +149,6 @@ class CaseUpdateView(LoginRequiredMixin, UpdateView):
             return super().form_valid(form)
         
         else:
-            # If invalid, don't save changes to Case, just reload
             return self.render_to_response(self.get_context_data(form=form))
 
 
@@ -210,37 +187,28 @@ class CaseDocumentUploadView(LoginRequiredMixin, CreateView):
     template_name = 'cases/upload_document.html'
 
     def form_valid(self, form):
-        # Get the case from the URL parameter
         case = get_object_or_404(Case, pk=self.kwargs['pk'])
         
-        # Attach the case to the document instance
         form.instance.case = case
         
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Pass the case to the template for the header/back button
         context['case'] = get_object_or_404(Case, pk=self.kwargs['pk'])
         return context
 
     def get_success_url(self):
-        # Redirect back to the Case Detail page
         return reverse_lazy('cases:case_detail', kwargs={'pk': self.kwargs['pk']})
 
 
 class DeleteCaseDocumentView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        # Find the document
         document = get_object_or_404(CaseDocuments, pk=pk)
-        
-        # Store case ID to redirect back later
         case_id = document.case.pk
         
-        # Delete the object (and the file from S3 usually, handled by django-storages)
         document.delete()
         
-        # Redirect back to the case detail page
         return redirect('cases:case_detail', pk=case_id)
 
 
@@ -254,7 +222,6 @@ class CaseSearchView(LoginRequiredMixin, ListView):
         query = self.request.GET.get('search')
         
         if query:
-            # Filter by First Name OR Last Name OR National ID
             return Case.objects.filter(
                 Q(first_name__icontains=query) | 
                 Q(last_name__icontains=query) | 
@@ -264,6 +231,146 @@ class CaseSearchView(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Pass the search term back to the template to show "Results for: ..."
         context['query'] = self.request.GET.get('search', '')
         return context
+
+
+from .models import Case, Demands, Services_provided
+from .forms import DemandForm, ServiceProvidedForm
+
+class CaseServicesView(LoginRequiredMixin, View):
+    template_name = 'cases/case_services.html'
+
+    def get(self, request, pk):
+        case = get_object_or_404(Case, pk=pk)
+        demand_form = DemandForm(prefix='demand')
+        service_form = ServiceProvidedForm(prefix='service')
+        
+        return render(request, self.template_name, {
+            'case': case,
+            'demand_form': demand_form,
+            'service_form': service_form
+        })
+
+    def post(self, request, pk):
+        case = get_object_or_404(Case, pk=pk)
+        
+        if 'submit_demand' in request.POST:
+            demand_form = DemandForm(request.POST, prefix='demand')
+            service_form = ServiceProvidedForm(prefix='service') # Empty other form
+            
+            if demand_form.is_valid():
+                demand = demand_form.save(commit=False)
+                demand.case = case
+                demand.save()
+                return redirect('cases:case_detail', pk=pk)
+                
+        elif 'submit_service' in request.POST:
+            service_form = ServiceProvidedForm(request.POST, prefix='service')
+            demand_form = DemandForm(prefix='demand') # Empty other form
+            
+            if service_form.is_valid():
+                service = service_form.save(commit=False)
+                service.case = case
+                service.save()
+                return redirect('cases:case_detail', pk=pk)
+        
+        return render(request, self.template_name, {
+            'case': case,
+            'demand_form': demand_form,
+            'service_form': service_form
+        })
+
+
+
+class CaseNoteCreateView(LoginRequiredMixin, CreateView):
+    model = CaseNotes
+    form_class = CaseNoteForm
+    template_name = 'cases/add_note.html'
+
+    def form_valid(self, form):
+        case = get_object_or_404(Case, pk=self.kwargs['pk'])
+        form.instance.case = case
+        form.instance.added_by = self.request.user
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['case'] = get_object_or_404(Case, pk=self.kwargs['pk'])
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('cases:case_detail', kwargs={'pk': self.kwargs['pk']})
+
+
+
+class CaseServicesView(LoginRequiredMixin, View):
+    template_name = 'cases/case_services.html'
+
+    def get(self, request, pk):
+        case = get_object_or_404(Case, pk=pk)
+        return render(request, self.template_name, {
+            'case': case,
+            'demand_form': DemandForm(prefix='demand'),
+            'service_form': ServiceProvidedForm(prefix='service'),
+        })
+
+    def post(self, request, pk):
+        case = get_object_or_404(Case, pk=pk)
+        
+        # 1. DEMAND
+        if 'submit_demand' in request.POST:
+            demand_form = DemandForm(request.POST, prefix='demand')
+            if demand_form.is_valid():
+                obj = demand_form.save(commit=False)
+                obj.case = case
+                obj.save()
+                return redirect('cases:case_detail', pk=pk)
+            # If invalid, reload with errors
+            return render(request, self.template_name, {
+                'case': case,
+                'demand_form': demand_form,
+                'service_form': ServiceProvidedForm(prefix='service'),
+                'visit_form': VisitForm(prefix='visit')
+            })
+                
+        # 2. SERVICE
+        elif 'submit_service' in request.POST:
+            service_form = ServiceProvidedForm(request.POST, prefix='service')
+            if service_form.is_valid():
+                obj = service_form.save(commit=False)
+                obj.case = case
+                obj.save()
+                return redirect('cases:case_detail', pk=pk)
+            return render(request, self.template_name, {
+                'case': case,
+                'demand_form': DemandForm(prefix='demand'),
+                'service_form': service_form,
+                'visit_form': VisitForm(prefix='visit')
+            })
+
+        return redirect('case_detail', pk=pk)
+
+
+
+
+class VisitCreateView(LoginRequiredMixin, CreateView):
+    model = Visit
+    form_class = VisitForm
+    template_name = 'cases/add_visit.html'
+
+    def form_valid(self, form):
+        case = get_object_or_404(Case, pk=self.kwargs['pk'])
+        form.instance.case = case
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['case'] = get_object_or_404(Case, pk=self.kwargs['pk'])
+        return context
+
+    def get_success_url(self):
+        return reverse_lazy('cases:case_detail', kwargs={'pk': self.kwargs['pk']})
+
+
+

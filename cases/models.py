@@ -8,7 +8,6 @@ from .utils import AwsHandler
 
 
 class Case(models.Model):
-    # --- Choices Definitions ---
 
     EDUCATION_CHOICES = (
         ('illiterate', 'بی سواد'),
@@ -72,7 +71,6 @@ class Case(models.Model):
         ('O', 'سایر')
     )
 
-    # 2. Marriage Status Choices (From your image)
     MARRIAGE_CHOICES = (
         ('married', 'متاهل'),
         ('divorced', 'مطلقه'),
@@ -104,20 +102,15 @@ class Case(models.Model):
         ('exempt', 'معافیت'),
         ('passed', 'گذرانده'),
     )
-    # 3. Count Choices (0 to 10)
-    # Creates a list like [(0, '0'), (1, '1'), ... (10, '10')]
     COUNT_CHOICES = [(i, str(i)) for i in range(11)]
 
-    # --- Fields ---
 
-    # REQUIRED FIELDS (No blank=True)
     first_name = models.CharField(max_length=30, verbose_name="نام")
     last_name = models.CharField(max_length=30, verbose_name="نام خانوادگی")
     national_id = models.CharField(max_length=30, unique=True, verbose_name="کد ملی")
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name="جنسیت")
     military_serveice = models.CharField(max_length=30, choices=MILITARY_CHOICES, verbose_name="وضعیت سربازی", blank=True, null=True)
 
-    # OPTIONAL FIELDS (blank=True, null=True)
     birth_certificate_number = models.CharField(max_length=30, verbose_name="شماره شناسنامه", blank=True, null=True)
     date_of_birth = jmodels.jDateField(verbose_name="تاریخ تولد", blank=True, null=True)
     birth_place = models.CharField(max_length=30, verbose_name="محل تولد", blank=True, null=True)
@@ -176,7 +169,6 @@ class CaseFamilyMembers(models.Model):
         ('phd', 'دکترا'),
         ('post_doc', 'فوق دکترا'),
     )
-    # I added related_name='family' for easier access
     case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='family')
     relation = models.CharField(max_length=30, choices=RELATION_CHOICES, verbose_name="نسبت")
     first_name = models.CharField(max_length=30, verbose_name="نام", blank=True, null=True)
@@ -189,8 +181,12 @@ class CaseFamilyMembers(models.Model):
 
 class CaseNotes(models.Model):
     case = models.ForeignKey(Case, on_delete=models.CASCADE)
-    note = models.TextField()
+    note = models.TextField(verbose_name="متن یادداشت")
     added_by = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True, blank=True)
+    date = jmodels.jDateField(null=True, blank=True, auto_now_add=True, verbose_name="تاریخ ثبت")
+
+    def __str__(self):
+        return f"{self.case} - {self.note[:20]}"
 
 
 class Disability(models.Model):
@@ -314,3 +310,18 @@ class Visit(models.Model):
         return f"{self.case.first_name} {self.case.last_name} - {self.visit_date}"
 
 
+class Demands(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='demands')
+    request = models.CharField(max_length=500, verbose_name="عنوان درخواست")
+    date = jmodels.jDateField(auto_now_add=True, verbose_name="تاریخ ثبت")
+
+    def __str__(self):
+        return f"{self.case.first_name} {self.case.last_name} - {self.request}"
+
+class Services_provided(models.Model):
+    case = models.ForeignKey(Case, on_delete=models.CASCADE, related_name='services_provided')
+    service = models.CharField(max_length=500, verbose_name="خدمت ارائه شده")
+    date = jmodels.jDateField(auto_now_add=True, verbose_name="تاریخ ثبت")
+
+    def __str__(self):
+        return f"{self.case.first_name} {self.case.last_name} - {self.service}"

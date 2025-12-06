@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+        {% include "base_head.html" %}
+    <title>بازدیدهای منقضی شده</title>
+    <style>body { font-family: 'Vazirmatn', sans-serif; }</style>
+</head>
+<body class="bg-gray-100 min-h-screen pb-20">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span class="bg-orange-100 text-orange-600 p-2 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </span>
+                بازدیدهای منقضی شده
+            </h1>
+            <a href="{% url 'accounts:home' %}" class="text-gray-500 hover:text-gray-700 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium transition flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                بازگشت به داشبورد
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-orange-50 px-6 py-4 border-b border-orange-100 flex justify-between items-center">
+                <h2 class="font-bold text-orange-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                    لیست پرونده‌هایی که بیش از ۶ ماه بازدید نشده‌اند
+                </h2>
+                <span class="bg-white px-3 py-1 rounded-full text-xs font-bold text-orange-600 shadow-sm">
+                    {{ expired_cases|length }} مورد
+                </span>
+            </div>
+
+            {% if expired_cases %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-right text-gray-600">
+                    <thead class="bg-gray-50 text-gray-700 text-xs uppercase border-b border-gray-200">
+                        <tr>
+                            <th class="px-6 py-4 font-bold">نام و نام خانوادگی</th>
+                            <th class="px-6 py-4 font-bold">کد ملی</th>
+                            <th class="px-6 py-4 font-bold">شماره تماس</th>
+                            <th class="px-6 py-4 font-bold text-center bg-blue-50/50 text-blue-800">آخرین بازدید</th>
+                            <th class="px-6 py-4 font-bold text-center bg-orange-50/50 text-orange-800">موعد بازدید بعدی</th>
+                            <th class="px-6 py-4 font-bold text-center bg-red-50/50 text-red-800">تاخیر (روز)</th>
+                            <th class="px-6 py-4 text-center">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% for case in expired_cases %}
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 font-medium text-gray-900">{{ case.first_name }} {{ case.last_name }}</td>
+                            <td class="px-6 py-4 font-mono">{{ case.national_id }}</td>
+                            <td class="px-6 py-4 font-mono">{{ case.phone_number|default:"-" }}</td>
+                            
+                            <!-- Last Visit -->
+                            <td class="px-6 py-4 text-center font-mono text-blue-600 bg-blue-50/30" dir="ltr">
+                                {{ case.display_last_visit|date:"Y/m/d" }}
+                            </td>
+                            
+                            <!-- Due Date (Last + 6 months) -->
+                            <td class="px-6 py-4 text-center font-mono text-orange-600 font-bold bg-orange-50/30" dir="ltr">
+                                {{ case.display_due_date|date:"Y/m/d" }}
+                            </td>
+                            
+                            <!-- Days Overdue -->
+                            <td class="px-6 py-4 text-center bg-red-50/30">
+                                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold text-xs">
+                                    {{ case.overdue_days }} روز
+                                </span>
+                            </td>
+
+                            <!-- Action -->
+                            <td class="px-6 py-4 text-center">
+                                <a href="{% url 'cases:case_detail' case.pk %}" class="text-indigo-600 hover:text-indigo-900 font-bold text-xs bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition">
+                                    مشاهده و ثبت بازدید
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <div class="p-10 text-center flex flex-col items-center justify-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-gray-600 font-bold text-lg">عالی!</p>
+                    <p class="text-gray-500 mt-1">هیچ بازدید منقضی شده‌ای وجود ندارد. تمام پرونده‌ها به موقع بازدید شده‌اند.</p>
+                </div>
+            {% endif %}
+        </div>
+
+    </main>
+
+</body>
+</html>
