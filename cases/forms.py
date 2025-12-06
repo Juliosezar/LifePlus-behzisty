@@ -370,6 +370,17 @@ class CaseDocumentForm(forms.ModelForm):
             existing_classes = field.widget.attrs.get('class', '')
             field.widget.attrs['class'] = f"{existing_classes} w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-3"
 
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data['doc_type'] == 'commition':
+            if cleaned_data['date'] is None:
+                raise forms.ValidationError("لطفا تاریخ برگزاری کمیسیون را وارد کنید.")
+            if cleaned_data['expiry_diuration'] is None:
+                raise forms.ValidationError("لطفا مدت اعتبار را وارد کنید.")
+        if cleaned_data['doc_type'] == 'disabiliti_card':
+            if cleaned_data['expiry_date'] is None:
+                raise forms.ValidationError("لطفا تاریخ انقضا را وارد کنید.")
+
 
     def _clean_jalali_date(self, field_name):
         """Helper to parse Jalali dates manually"""

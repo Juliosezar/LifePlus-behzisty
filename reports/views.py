@@ -161,8 +161,7 @@ class ExpiredCommissionsView(LoginRequiredMixin, ListView):
             doc_type='commition',
             date__isnull=False,
             expiry_diuration__isnull=False
-        ).select_related('case') 
-        print(documents)
+        ).select_related('case')
 
         expired_list = []
 
@@ -182,7 +181,7 @@ class ExpiredCommissionsView(LoginRequiredMixin, ListView):
                 
                 expired_list.append(doc)
 
-        return sorted(expired_list, key=lambda x: x.days_passed, reverse=True)
+        return sorted(expired_list, key=lambda x: x.days_passed, reverse=False)
 
 
 

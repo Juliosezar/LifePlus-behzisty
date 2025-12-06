@@ -10,7 +10,7 @@ urlpatterns = [
     path('case/<int:pk>/upload/', views.CaseDocumentUploadView.as_view(), name='upload_document'),
     path('cases/search/', views.CaseSearchView.as_view(), name='case_search'),
     path('document/<int:pk>/delete/', views.DeleteCaseDocumentView.as_view(), name='delete_document'),
-    path('case/<int:pk>/services/', views.CaseServicesView.as_view(), name='case_services'),
+    path('case/<int:pk>/services/<str:form_type>/', views.CaseServicesView.as_view(), name='case_services'),
     path('case/<int:pk>/add-note/', views.CaseNoteCreateView.as_view(), name='add_note'),
     path('case/<int:pk>/add-visit/', views.VisitCreateView.as_view(), name='add_visit'),
 

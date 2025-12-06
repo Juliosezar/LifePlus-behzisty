@@ -241,15 +241,17 @@ from .forms import DemandForm, ServiceProvidedForm
 class CaseServicesView(LoginRequiredMixin, View):
     template_name = 'cases/case_services.html'
 
-    def get(self, request, pk):
+    def get(self, request, pk, form_type):
         case = get_object_or_404(Case, pk=pk)
+        self.form_type = form_type
         demand_form = DemandForm(prefix='demand')
         service_form = ServiceProvidedForm(prefix='service')
         
         return render(request, self.template_name, {
             'case': case,
             'demand_form': demand_form,
-            'service_form': service_form
+            'service_form': service_form,
+            'form_type': form_type
         })
 
     def post(self, request, pk):
@@ -278,7 +280,8 @@ class CaseServicesView(LoginRequiredMixin, View):
         return render(request, self.template_name, {
             'case': case,
             'demand_form': demand_form,
-            'service_form': service_form
+            'service_form': service_form,
+            'form_type': self.form_type
         })
 
 
@@ -301,55 +304,6 @@ class CaseNoteCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy('cases:case_detail', kwargs={'pk': self.kwargs['pk']})
-
-
-
-class CaseServicesView(LoginRequiredMixin, View):
-    template_name = 'cases/case_services.html'
-
-    def get(self, request, pk):
-        case = get_object_or_404(Case, pk=pk)
-        return render(request, self.template_name, {
-            'case': case,
-            'demand_form': DemandForm(prefix='demand'),
-            'service_form': ServiceProvidedForm(prefix='service'),
-        })
-
-    def post(self, request, pk):
-        case = get_object_or_404(Case, pk=pk)
-        
-        # 1. DEMAND
-        if 'submit_demand' in request.POST:
-            demand_form = DemandForm(request.POST, prefix='demand')
-            if demand_form.is_valid():
-                obj = demand_form.save(commit=False)
-                obj.case = case
-                obj.save()
-                return redirect('cases:case_detail', pk=pk)
-            # If invalid, reload with errors
-            return render(request, self.template_name, {
-                'case': case,
-                'demand_form': demand_form,
-                'service_form': ServiceProvidedForm(prefix='service'),
-                'visit_form': VisitForm(prefix='visit')
-            })
-                
-        # 2. SERVICE
-        elif 'submit_service' in request.POST:
-            service_form = ServiceProvidedForm(request.POST, prefix='service')
-            if service_form.is_valid():
-                obj = service_form.save(commit=False)
-                obj.case = case
-                obj.save()
-                return redirect('cases:case_detail', pk=pk)
-            return render(request, self.template_name, {
-                'case': case,
-                'demand_form': DemandForm(prefix='demand'),
-                'service_form': service_form,
-                'visit_form': VisitForm(prefix='visit')
-            })
-
-        return redirect('case_detail', pk=pk)
 
 
 

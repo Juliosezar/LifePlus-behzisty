@@ -108,7 +108,10 @@
                 btnDemand.className = `flex-1 py-3 rounded-xl font-bold transition text-sm flex items-center justify-center gap-2 ${inactiveStyle}`;
             }
         }
-    </script>
 
+        document.addEventListener('DOMContentLoaded', function() {
+            showForm('{{ form_type }}');
+        });
+    </script>
 </body>
 </html>
