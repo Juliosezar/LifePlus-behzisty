@@ -97,9 +97,11 @@
                 <table class="w-full text-sm text-right text-gray-600">
                     <thead class="bg-gray-100 text-gray-800 uppercase font-bold text-xs">
                         <tr>
+                            <th class="px-4 py-3 text-center"></th>
                             <th class="px-4 py-3">نام و نام خانوادگی</th>
                             <th class="px-4 py-3">کد ملی</th>
                             <th class="px-4 py-3">پرونده</th>
+                            <th class="px-4 py-3">مستمری</th>
                             <th class="px-4 py-3">تحصیلات</th>
                             <th class="px-4 py-3">مسکن</th>
                             <th class="px-4 py-3 text-center">عملیات</th>
@@ -108,11 +110,13 @@
                     <tbody class="divide-y divide-gray-200">
                         {% for case in cases %}
                         <tr class="hover:bg-blue-50 transition">
+                            <td class="px-4 py-3 text-center">{{ forloop.counter }}</td>
                             <td class="px-4 py-3 font-medium text-gray-900">{{ case.first_name }} {{ case.last_name }}</td>
                             <td class="px-4 py-3 font-mono">{{ case.national_id }}</td>
                             <td class="px-4 py-3">
                                 <span class="bg-gray-200 px-2 py-0.5 rounded text-[10px] text-gray-700">{{ case.get_case_type_display }}</span>
                             </td>
+                            <td class="px-4 py-3">{{ case.get_pension_status_display }}</td>
                             <td class="px-4 py-3">{{ case.get_education_display }}</td>
                             <td class="px-4 py-3">{{ case.get_housing_status_display }}</td>
                             <td class="px-4 py-3 text-center">

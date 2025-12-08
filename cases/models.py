@@ -151,12 +151,11 @@ class CaseFamilyMembers(models.Model):
     RELATION_CHOICES = (
         ('father', 'پدر'),
         ('mother', 'مادر'),
+        ('husband', 'همسر'),
         ('brother', 'برادر'),
         ('sister', 'خواهر'),
         ('son', 'پسر'),
         ('daughter', 'دختر'),
-        ('husband', 'شوهر'),
-        ('wife', 'زن'),
     )
     EDUCATION_CHOICES = (
         ('illiterate', 'بی سواد'),

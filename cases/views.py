@@ -254,7 +254,7 @@ class CaseServicesView(LoginRequiredMixin, View):
             'form_type': form_type
         })
 
-    def post(self, request, pk):
+    def post(self, request, pk, form_type):
         case = get_object_or_404(Case, pk=pk)
         
         if 'submit_demand' in request.POST:
@@ -281,7 +281,7 @@ class CaseServicesView(LoginRequiredMixin, View):
             'case': case,
             'demand_form': demand_form,
             'service_form': service_form,
-            'form_type': self.form_type
+            'form_type': form_type
         })
 
 

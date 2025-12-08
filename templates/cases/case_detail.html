@@ -85,14 +85,15 @@
                     <div><span class="block text-xs text-gray-400 mb-1">تاریخ تولد</span><span class="font-bold text-gray-800" dir="ltr">{{ case.date_of_birth|date:"Y/m/d"|default:"-" }}</span></div>
                     <div><span class="block text-xs text-gray-400 mb-1">محل تولد</span><span class="font-bold text-gray-800">{{ case.birth_place|default:"-" }}</span></div>
                     <div><span class="block text-xs text-gray-400 mb-1">جنسیت</span><span class="font-bold text-gray-800">{{ case.get_gender_display }}</span></div>
-                    
+                    <div><span class="block text-xs text-gray-400 mb-1">نام پدر</span><span id="fathers_name" class="font-bold text-gray-800"></span></div>
+                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت مستمری</span><span class="font-bold text-gray-800">{{ case.get_pension_status_display|default:'-' }}</span></div>
                     <!-- Military -->
                     <div><span class="block text-xs text-gray-400 mb-1">وضعیت سربازی</span>
                         <span class="font-bold text-gray-800">{% if case.military_serveice %}{{ case.get_military_serveice_display }}{% else %}-{% endif %}</span>
                     </div>
 
                     <!-- Education -->
-                    <div><span class="block text-xs text-gray-400 mb-1">تحصیلات</span><span class="font-bold text-gray-800">{{ case.get_education_display }}</span></div>
+                    <div><span class="block text-xs text-gray-400 mb-1">تحصیلات</span><span class="font-bold text-gray-800">{{ case.get_education_display|default:'-' }}</span></div>
                     <div><span class="block text-xs text-gray-400 mb-1">رشته تحصیلی</span><span class="font-bold text-gray-800">{{ case.field_of_study|default:"-" }}</span></div>
 
                     <!-- Contact -->
@@ -101,12 +102,11 @@
                     
                     <!-- Job & Status -->
                     <div><span class="block text-xs text-gray-400 mb-1">شغل</span><span class="font-bold text-gray-800">{{ case.job|default:"-" }}</span></div>
-                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت تاهل</span><span class="font-bold text-gray-800">{{ case.get_marrige_status_display }}</span></div>
+                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت تاهل</span><span class="font-bold text-gray-800">{{ case.get_marrige_status_display|default:'-' }}</span></div>
                     <div><span class="block text-xs text-gray-400 mb-1">وضعیت بیمه</span><span class="font-bold text-gray-800">{{ case.get_insurance_display|default:"-" }}</span></div>
-                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت مستمری</span><span class="font-bold text-gray-800">{{ case.get_pension_status_display }}</span></div>
 
                     <!-- Housing & Rental Logic -->
-                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت مسکن</span><span class="font-bold text-gray-800">{{ case.get_housing_status_display }}</span></div>
+                    <div><span class="block text-xs text-gray-400 mb-1">وضعیت مسکن</span><span class="font-bold text-gray-800">{{ case.get_housing_status_display|default:'-' }}</span></div>
                     
                     {% if case.housing_status == 'rental' %}
                         <div class="bg-blue-50 p-2 rounded-lg border border-blue-100">
@@ -119,7 +119,7 @@
                         </div>
                     {% endif %}
                     
-                    <div><span class="block text-xs text-gray-400 mb-1">منطقه مسکونی</span><span class="font-bold text-gray-800">{{ case.get_residencial_area_display }}</span></div>
+                    <div><span class="block text-xs text-gray-400 mb-1">منطقه مسکونی</span><span class="font-bold text-gray-800">{{ case.get_residencial_area_display|default:'-' }}</span></div>
 
                     <!-- Address -->
                     <div class="md:col-span-full bg-gray-50 p-3 rounded-xl border border-gray-100 mt-2">
@@ -159,7 +159,7 @@
                 </h3>
                 <div class="flex flex-wrap gap-2">
                     {% for item in case.reasons.all %}
-                        <span class="bg-white px-3 py-1 rounded-lg text-sm text-rose-700 shadow-sm border border-rose-100">{{ item.get_reason_display }}</span>
+                        <span class="bg-white px-3 py-1 rounded-lg text-sm text-rose-700 shadow-sm border border-rose-100">{{ item.get_reason_display|default:'-' }}</span>
                     {% endfor %}
                 </div>
             </div>
@@ -193,10 +193,10 @@
                 </h3>
                 
                 <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 text-center mb-6">
-                    <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">فرزندان</span> <span class="font-bold text-lg text-teal-800">{{ case.children_count }}</span></div>
-                    <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">تحت تکفل</span> <span class="font-bold text-lg text-teal-800">{{ case.dependents_count }}</span></div>
-                    <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">برادران</span> <span class="font-bold text-lg text-teal-800">{{ case.brothers_count }}</span></div>
-                    <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">خواهران</span> <span class="font-bold text-lg text-teal-800">{{ case.sisters_count }}</span></div>
+                    <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">فرزندان</span> <span class="font-bold text-lg text-teal-800">{{ case.children_count|default:'-' }}</span></div>
+                    <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">تحت تکفل</span> <span class="font-bold text-lg text-teal-800">{{ case.dependents_count|default:'-' }}</span></div>
+                    <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">برادران</span> <span class="font-bold text-lg text-teal-800">{{ case.brothers_count|default:'-' }}</span></div>
+                    <div class="bg-teal-50 p-2 rounded-lg border border-teal-100"><span class="text-teal-600 block text-xs">خواهران</span> <span class="font-bold text-lg text-teal-800">{{ case.sisters_count|default:'-' }}</span></div>
                 </div>
                 
                 {% if case.family.all %}
@@ -216,7 +216,12 @@
                             {% for member in case.family.all %}
                             <tr class="hover:bg-teal-50/30 transition">
                                 <td class="px-3 py-3 font-bold text-teal-700">{{ member.get_relation_display }}</td>
-                                <td class="px-3 py-3">{{ member.first_name }} {{ member.last_name }}</td>
+                                {% if member.relation == 'father' %}
+                                    <script>
+                                    document.getElementById('fathers_name').innerHTML = '{{ member.first_name|default:'-' }}';
+                                    </script>
+                                {% endif %}
+                                <td class="px-3 py-3">{{ member.first_name|default:'-' }} {{ member.last_name|default:'-' }}</td>
                                 <td class="px-3 py-3 font-mono text-xs">{{ member.national_id|default:"-" }}</td>
                                 <td class="px-3 py-3">{{ member.get_education_display|default:"-" }}</td>
                                 <td class="px-3 py-3">{{ member.job|default:"-" }}</td>
