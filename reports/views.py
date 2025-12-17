@@ -1,24 +1,14 @@
-from django.shortcuts import render
 from django.views.generic import ListView
-from cases.models import Case
+from cases.models import Case, Disability, ReasonCase, RecoveredReasonCase
 from .forms import CaseReportForm
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import CaseReportForm
 import openpyxl
 from django.http import HttpResponse
-from cases.models import Case
-from .forms import CaseReportForm
 from django.db.models import Max
-from django.utils import timezone
 from datetime import timedelta
 import datetime
 import jdatetime
-from django.db.models import F
 from cases.models import CaseDocuments
-from django.db.models import Max, Q
-from django.core.paginator import Paginator
 from cases.models import Demands
 
 
@@ -60,7 +50,7 @@ class CaseReportView(LoginRequiredMixin, ListView):
 
 
 def export_cases_to_excel(request):
-    queryset = Case.objects.all().order_by('-created_at')
+    queryset = Case.objects.all().order_by('-created_at').prefetch_related('reasons', 'disabilities', 'recovered_reasons')
     
     if request.GET:
         form = CaseReportForm(request.GET)
@@ -88,6 +78,9 @@ def export_cases_to_excel(request):
     ws.append(headers)
 
     for case in queryset:
+        disabilty_types = '// '.join([f'{d.get_disability_type_display()}-{d.get_disability_level_display()}' for d in case.disabilities.all()])
+        reasons = ', '.join([r.get_reason_display() for r in case.reasons.all()])
+        recovered_reasons = ', '.join([rr.get_reason_display() for rr in case.recovered_reasons.all()])
         row = [
             case.first_name,
             case.last_name,
@@ -99,6 +92,9 @@ def export_cases_to_excel(request):
             case.get_housing_status_display(),
             case.get_insurance_display(),
             case.get_marrige_status_display(),
+            disabilty_types,
+            reasons,
+            recovered_reasons,
         ]
         ws.append(row)
 
