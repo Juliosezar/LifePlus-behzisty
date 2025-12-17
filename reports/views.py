@@ -10,7 +10,7 @@ import datetime
 import jdatetime
 from cases.models import CaseDocuments
 from cases.models import Demands
-
+from django.db.models import Q
 
 
 
@@ -72,7 +72,7 @@ def export_cases_to_excel(request):
     ws.sheet_view.rightToLeft = True # Set sheet direction for Persian
 
     headers = [
-        'نام', 'نام خانوادگی', 'کد ملی', 'جنسیت', 'نوع پرونده', 
+        'نام', 'نام خانوادگی', 'کد ملی', 'جنسیت','تاریخ تولد', 'نوع پرونده', 
         'شماره تماس', 'تحصیلات', 'وضعیت مسکن', 'بیمه', 'وضعیت تاهل'
     ]
     ws.append(headers)
@@ -86,6 +86,7 @@ def export_cases_to_excel(request):
             case.last_name,
             case.national_id,
             case.get_gender_display(),          
+            case.date_of_birth.strftime('%Y/%m/%d') if case.date_of_birth else '',
             case.get_case_type_display(),
             case.phone_number,
             case.get_education_display(),
