@@ -101,6 +101,7 @@ class Case(models.Model):
         ('absence', 'غیبت'),
         ('exempt', 'معافیت'),
         ('passed', 'گذرانده'),
+        ('not_aged', 'زیر سن سربازی'),
     )
     COUNT_CHOICES = [(i, str(i)) for i in range(11)]
 
