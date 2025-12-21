@@ -1,5 +1,5 @@
 from django.views.generic import ListView
-from cases.models import Case, Disability, ReasonCase, RecoveredReasonCase
+from cases.models import Case
 from .forms import CaseReportForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 import openpyxl
@@ -21,7 +21,7 @@ class CaseReportView(LoginRequiredMixin, ListView):
     context_object_name = 'cases'
 
     def get_queryset(self):
-        queryset = Case.objects.all().order_by('-created_at')
+        queryset = Case.objects.all().order_by('-created_at').prefetch_related('disabilities', 'reasons', 'recovered_reasons')
         
         if self.request.GET:
             form = CaseReportForm(self.request.GET)
@@ -31,15 +31,34 @@ class CaseReportView(LoginRequiredMixin, ListView):
                 filter_fields = [
                     'gender', 'case_type', 'military_serveice', 'pension_status',
                     'housing_status', 'education', 'insurance', 
-                    'residencial_area', 'marrige_status'
+                    'residencial_area', 'marrige_status', 'birth_date_from', 'birth_date_to',
+                    'disability_type', 'disability_level', 'reasons', 'recovered_reasons'
                 ]
 
                 for field in filter_fields:
                     if data.get(field):
-                        lookup = f"{field}__in"
-                        queryset = queryset.filter(**{lookup: data[field]})
 
-        return queryset
+                        if field == 'disability_type':
+                            queryset = queryset.filter(disabilities__disability_type__in=data[field])
+                        elif field == 'disability_level':
+                            queryset = queryset.filter(disabilities__disability_level__in=data[field])
+
+                        elif field == 'birth_date_from' or field == 'birth_date_to':
+                            if not data['birth_date_from']:
+                                queryset = queryset.filter(date_of_birth__lte=data['birth_date_to'])
+                            elif not data['birth_date_to']:
+                                queryset = queryset.filter(date_of_birth__gte=data['birth_date_from'])
+                            else:
+                                queryset = queryset.filter(date_of_birth__gte=data['birth_date_from'], date_of_birth__lte=data['birth_date_to'])
+                        elif field == 'reasons':
+                            queryset = queryset.filter(reasons__reason__in=data[field])
+                        elif field == 'recovered_reasons':
+                            queryset = queryset.filter(recovered_reasons__reason__in=data[field])
+                        else:
+                            lookup = f"{field}__in"
+                            queryset = queryset.filter(**{lookup: data[field]})
+
+        return queryset.distinct()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -56,15 +75,37 @@ def export_cases_to_excel(request):
         form = CaseReportForm(request.GET)
         if form.is_valid():
             data = form.cleaned_data
+            
             filter_fields = [
                 'gender', 'case_type', 'military_serveice', 'pension_status',
                 'housing_status', 'education', 'insurance', 
-                'residencial_area', 'marrige_status'
+                'residencial_area', 'marrige_status', 'birth_date_from', 'birth_date_to',
+                'disability_type', 'disability_level', 'reasons', 'recovered_reasons'
             ]
+
             for field in filter_fields:
+                print(field)
                 if data.get(field):
-                    lookup = f"{field}__in"
-                    queryset = queryset.filter(**{lookup: data[field]})
+                    if field == 'disability_type':
+                        queryset = queryset.filter(disabilities__disability_type__in=data[field])
+                    elif field == 'disability_level':
+                        queryset = queryset.filter(disabilities__disability_level__in=data[field])
+
+                    elif field == 'birth_date_from' or field == 'birth_date_to':
+                        if not data['birth_date_from']:
+                            queryset = queryset.filter(date_of_birth__lte=data['birth_date_to'])
+                        elif not data['birth_date_to']:
+                            queryset = queryset.filter(date_of_birth__gte=data['birth_date_from'])
+                        else:
+                            queryset = queryset.filter(date_of_birth__gte=data['birth_date_from'], date_of_birth__lte=data['birth_date_to'])
+                    elif field == 'reasons':
+                        queryset = queryset.filter(reasons__reason__in=data[field])
+                    elif field == 'recovered_reasons':
+                        queryset = queryset.filter(recovered_reasons__reason__in=data[field])
+                    else:
+                        lookup = f"{field}__in"
+                        queryset = queryset.filter(**{lookup: data[field]})
+
 
     wb = openpyxl.Workbook()
     ws = wb.active
@@ -77,7 +118,7 @@ def export_cases_to_excel(request):
     ]
     ws.append(headers)
 
-    for case in queryset:
+    for case in queryset.distinct():
         disabilty_types = '// '.join([f'{d.get_disability_type_display()}-{d.get_disability_level_display()}' for d in case.disabilities.all()])
         reasons = ', '.join([r.get_reason_display() for r in case.reasons.all()])
         recovered_reasons = ', '.join([rr.get_reason_display() for rr in case.recovered_reasons.all()])

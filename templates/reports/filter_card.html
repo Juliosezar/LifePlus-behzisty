@@ -6,12 +6,7 @@
     
     <!-- Scrollable Content -->
     <div class="p-3 bg-gray-50 flex-grow">
-        <!-- Select All -->
-        <div class="flex items-center justify-between pb-2 mb-2 border-b border-gray-200">
-            <label for="all_{{ field.name }}" class="text-xs font-bold text-gray-700 cursor-pointer">همه</label>
-            <input type="checkbox" id="all_{{ field.name }}" onclick="toggleAll(this, '{{ field.name }}')">
-        </div>
-        
+      
         <!-- Options List -->
         <div class="space-y-2 filter-scroll max-h-32 overflow-y-auto pr-1">
             {% for checkbox in field %}

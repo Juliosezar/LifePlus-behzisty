@@ -3,6 +3,8 @@
 <head>
         {% include 'base_head.html' %}
     <title>گزارش گیری پیشرفته</title>
+    <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
+    <script type="text/javascript" src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
     <style>
         body { font-family: 'Vazirmatn', sans-serif; }
         /* Custom Scrollbar for filter boxes */
@@ -36,7 +38,13 @@
 
     <main class="max-w-[95%] mx-auto">
         
-        <form method="get" id="filter-form">
+        <form method="get" id="filter-form" action='' novalidate>
+            {% csrf_token %}
+            {% for error in form.errors %}
+                <div class="bg-red-50 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline">{{ error }}</span>
+                </div>
+            {% endfor %}
             
             <!-- FILTERS COMPACT GRID -->
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
@@ -44,6 +52,12 @@
                 <!-- 1. Case Type -->
                 {% include "reports/filter_card.html" with field=form.case_type label="نوع پرونده" %}
 
+                {% include "reports/filter_card.html" with field=form.disability_type label="نوع معلولیت" %}
+
+                {% include "reports/filter_card.html" with field=form.disability_level label="شدت معلولیت" %}
+
+                {% include "reports/filter_card.html" with field=form.reasons label="علت تشکیل پرونده(اجتماعی)" %}
+                {% include "reports/filter_card.html" with field=form.recovered_reasons label="علت تشکیل پرونده (بهبود یافته)" %}
                 <!-- 2. Gender -->
                 {% include "reports/filter_card.html" with field=form.gender label="جنسیت" %}
 
@@ -67,6 +81,38 @@
 
                 <!-- 9. Insurance -->
                 {% include "reports/filter_card.html" with field=form.insurance label="بیمه" %}
+
+                <div class="rounded-xl overflow-hidden shadow border border-gray-300 bg-white flex flex-col h-full">
+                    <!-- Header -->
+                    <div class="bg-black text-white text-center py-2 font-bold text-sm">
+                        تاریخ تولد
+                    </div>
+                    
+                    <!-- Scrollable Content -->
+                    <div class="p-3 bg-gray-50 flex-col flex items-center justify-center">
+                        
+                        <!-- Options List -->
+                        <div class="space-y-10  max-h-32  pr-1">
+                            
+                            <div class="flex items-center justify-between hover:bg-gray-100 rounded px-1">
+                                <label for="date_of_birth_from" class="text-xs text-gray-600 cursor-pointer w-full">{{ form.birth_date_from.label }}</label>
+                                <div class='relative'>{{ form.birth_date_from }}</div>
+                            </div>
+                            
+
+                        </div>
+                        <div class="mt-10 space-y-2  max-h-32 pr-1">
+                            
+                            <div class="flex items-center justify-between hover:bg-gray-100 rounded px-1">
+                                <label for="date_of_birth_from" class="text-xs text-gray-600 cursor-pointer w-full"> {{ form.birth_date_to.label }}</label>
+                                <div class='relative'>{{ form.birth_date_to }}</div>
+                            </div>
+                            
+
+                        </div>
+                    </div>
+                </div>
+
 
             </div>
 
@@ -101,6 +147,7 @@
                             <th class="px-4 py-3">نام و نام خانوادگی</th>
                             <th class="px-4 py-3">کد ملی</th>
                             <th class="px-4 py-3">پرونده</th>
+                            <th class="px-4 py-3">تاریخ تولد</th>
                             <th class="px-4 py-3">مستمری</th>
                             <th class="px-4 py-3">تحصیلات</th>
                             <th class="px-4 py-3">مسکن</th>
@@ -114,11 +161,12 @@
                             <td class="px-4 py-3 font-medium text-gray-900">{{ case.first_name }} {{ case.last_name }}</td>
                             <td class="px-4 py-3 font-mono">{{ case.national_id }}</td>
                             <td class="px-4 py-3">
-                                <span class="bg-gray-200 px-2 py-0.5 rounded text-[10px] text-gray-700">{{ case.get_case_type_display }}</span>
+                                <span class="bg-gray-200-200 px-2 py-0.5 rounded text-[10px] text-gray-700">{{ case.get_case_type_display|default:"-" }}</span>
                             </td>
-                            <td class="px-4 py-3">{{ case.get_pension_status_display }}</td>
-                            <td class="px-4 py-3">{{ case.get_education_display }}</td>
-                            <td class="px-4 py-3">{{ case.get_housing_status_display }}</td>
+                            <td class="px-4 py-3">{{ case.date_of_birth|date:"d/m/Y"|default:"-" }}</td>
+                            <td class="px-4 py-3">{{ case.get_pension_status_display|default:"-" }}</td>
+                            <td class="px-4 py-3">{{ case.get_education_display|default:"-"|truncatechars:12 }}</td>
+                            <td class="px-4 py-3">{{ case.get_housing_status_display|default:"-" }}</td>
                             <td class="px-4 py-3 text-center">
                                 <a href="{% url 'cases:case_detail' case.pk %}" target="_blank" class="text-blue-600 hover:text-blue-800 font-bold text-xs bg-blue-50 px-2 py-1 rounded border border-blue-100">مشاهده</a>
                             </td>
@@ -144,6 +192,8 @@
             });
         }
     </script>
-
+    <script>
+        jalaliDatepicker.startWatch({ minDate: "attr", maxDate: "attr" });
+    </script>
 </body>
 </html>
