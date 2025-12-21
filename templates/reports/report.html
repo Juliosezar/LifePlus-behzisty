@@ -161,7 +161,7 @@
                             <td class="px-4 py-3 font-medium text-gray-900">{{ case.first_name }} {{ case.last_name }}</td>
                             <td class="px-4 py-3 font-mono">{{ case.national_id }}</td>
                             <td class="px-4 py-3">
-                                <span class="bg-gray-200-200 px-2 py-0.5 rounded text-[10px] text-gray-700">{{ case.get_case_type_display|default:"-" }}</span>
+                                <span class="bg-gray-200 px-2 py-0.5 rounded text-[10px] text-gray-700">{{ case.get_case_type_display|default:"-" }}</span>
                             </td>
                             <td class="px-4 py-3">{{ case.date_of_birth|date:"d/m/Y"|default:"-" }}</td>
                             <td class="px-4 py-3">{{ case.get_pension_status_display|default:"-" }}</td>
