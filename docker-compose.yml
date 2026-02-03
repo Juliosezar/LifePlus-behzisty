@@ -21,7 +21,8 @@ services:
   nginx:
     image: nginx:trixie
     ports:
-      - "127.0.0.1:8005:80"
+      - "80:80"
+      - "443:443"
     volumes:
     - ./static:/usr/share/nginx/html/static
     - ./media:/usr/share/nginx/html/media
