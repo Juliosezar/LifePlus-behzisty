@@ -180,6 +180,14 @@ class CaseForm(forms.ModelForm):
                 raise ValidationError("شماره شبا اشتباه است.(باید 24 رقم باشد.)")
         return bank_shaba_number
 
+    def clean_postal_code(self):
+        postal_code = self.cleaned_data.get('postal_code')
+        if postal_code is not None and len(postal_code) != 0:
+            for i in postal_code:
+                if not i.isdigit():
+                    raise ValidationError("کد پستی نمیتواند حاوی حروف باشد.")
+        return postal_code
+
 def check_national_id(national_id):
     control_num = int(national_id[9:])
     num = national_id

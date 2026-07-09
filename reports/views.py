@@ -69,7 +69,10 @@ class CaseReportView(LoginRequiredMixin, ListView):
 
 
 def export_cases_to_excel(request):
-    queryset = Case.objects.all().order_by('-created_at').prefetch_related('reasons', 'disabilities', 'recovered_reasons')
+    queryset = Case.objects.all().order_by('-created_at').prefetch_related(
+        'reasons', 'disabilities', 'recovered_reasons', 'family',
+        'visits', 'demands', 'services_provided'
+    )
     
     if request.GET:
         form = CaseReportForm(request.GET)
@@ -113,8 +116,19 @@ def export_cases_to_excel(request):
     ws.sheet_view.rightToLeft = True # Set sheet direction for Persian
 
     headers = [
-        'نام', 'نام خانوادگی', 'کد ملی', 'جنسیت','تاریخ تولد', 'نوع پرونده', 
-        'شماره تماس', 'تحصیلات', 'وضعیت مسکن', 'بیمه', 'وضعیت تاهل'
+        'نام', 'نام خانوادگی', 'کد ملی', 'جنسیت', 'وضعیت سربازی', 'شماره شناسنامه',
+        'تاریخ تولد', 'محل تولد', 'تحصیلات', 'رشته تحصیلی', 'بیمه', 'شغل',
+        'شماره تماس', 'تلفن ثابت', 'وضعیت مسکن', 'رهن', 'اجاره', 'منطقه مسکونی',
+        'آدرس', 'کد پستی', 'متراژ آپارتمان', 'نوع ساختمان', 'تعداد اتاق',
+        'وضعیت مستمری', 'نوع پرونده', 'شماره کارت', 'شماره حساب', 'شماره شبا',
+        'وضعیت تاهل', 'تعداد برادران', 'تعداد خواهران', 'تعداد افراد تحت تکفل',
+        'تعداد فرزندان', 'تاریخ ایجاد', 'تاریخ بروزرسانی',
+        'پدر - نام', 'پدر - نام خانوادگی', 'پدر - کد ملی', 'پدر - تحصیلات', 'پدر - شغل',
+        'مادر - نام', 'مادر - نام خانوادگی', 'مادر - کد ملی', 'مادر - تحصیلات', 'مادر - شغل',
+        'اعضای خانواده',
+        'تاریخ آخرین بازدید',
+        'درخواست‌ها',
+        'خدمات ارائه شده'
     ]
     ws.append(headers)
 
@@ -122,21 +136,72 @@ def export_cases_to_excel(request):
         disabilty_types = '// '.join([f'{d.get_disability_type_display()}-{d.get_disability_level_display()}' for d in case.disabilities.all()])
         reasons = ', '.join([r.get_reason_display() for r in case.reasons.all()])
         recovered_reasons = ', '.join([rr.get_reason_display() for rr in case.recovered_reasons.all()])
+
+        father = case.family.filter(relation='father').first()
+        mother = case.family.filter(relation='mother').first()
+
+        other_family = case.family.exclude(relation__in=['father', 'mother'])
+        family_str = ', '.join([
+            f'{f.get_relation_display()}:{f.first_name or ""} {f.last_name or ""}'
+            for f in other_family
+        ])
+
+        last_visit = case.visits.order_by('-visit_date').first()
+        last_visit_date = last_visit.visit_date.strftime('%Y/%m/%d') if last_visit and last_visit.visit_date else ''
+
+        demands_str = ', '.join([d.request for d in case.demands.all()])
+        services_str = ', '.join([s.service for s in case.services_provided.all()])
+
         row = [
             case.first_name,
             case.last_name,
             case.national_id,
-            case.get_gender_display(),          
+            case.get_gender_display(),
+            case.get_military_serveice_display() if case.military_serveice else '',
+            case.birth_certificate_number or '',
             case.date_of_birth.strftime('%Y/%m/%d') if case.date_of_birth else '',
-            case.get_case_type_display(),
-            case.phone_number,
+            case.birth_place or '',
             case.get_education_display(),
-            case.get_housing_status_display(),
+            case.field_of_study or '',
             case.get_insurance_display(),
+            case.job or '',
+            case.phone_number or '',
+            case.home_phone_number or '',
+            case.get_housing_status_display(),
+            case.house_mortgage if case.house_mortgage is not None else '',
+            case.house_rent if case.house_rent is not None else '',
+            case.get_residencial_area_display() if case.residencial_area else '',
+            case.address or '',
+            case.postal_code or '',
+            case.apartment_area if case.apartment_area is not None else '',
+            case.get_building_type_display() if case.building_type else '',
+            case.room_count if case.room_count is not None else '',
+            case.get_pension_status_display() if case.pension_status else '',
+            case.get_case_type_display(),
+            case.bank_card_number or '',
+            case.bank_account_number or '',
+            case.bank_shaba_number or '',
             case.get_marrige_status_display(),
-            disabilty_types,
-            reasons,
-            recovered_reasons,
+            case.brothers_count if case.brothers_count is not None else '',
+            case.sisters_count if case.sisters_count is not None else '',
+            case.dependents_count if case.dependents_count is not None else '',
+            case.children_count if case.children_count is not None else '',
+            case.created_at.strftime('%Y/%m/%d %H:%M') if case.created_at else '',
+            case.updated_at.strftime('%Y/%m/%d %H:%M') if case.updated_at else '',
+            father.first_name if father else '',
+            father.last_name if father else '',
+            father.national_id if father else '',
+            father.get_education_display() if father and father.education else '',
+            father.job if father else '',
+            mother.first_name if mother else '',
+            mother.last_name if mother else '',
+            mother.national_id if mother else '',
+            mother.get_education_display() if mother and mother.education else '',
+            mother.job if mother else '',
+            family_str,
+            last_visit_date,
+            demands_str,
+            services_str,
         ]
         ws.append(row)
 

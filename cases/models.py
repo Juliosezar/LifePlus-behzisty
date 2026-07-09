@@ -129,6 +129,16 @@ class Case(models.Model):
     house_rent = models.FloatField(verbose_name="اجاره", blank=True, null=True)
     residencial_area = models.CharField(max_length=30, choices=AREA_CHOICES, verbose_name="منطقه مسکونی", blank=True, null=True)
     address = models.CharField(max_length=400, verbose_name="آدرس", blank=True, null=True)
+    postal_code = models.CharField(max_length=10, verbose_name="کد پستی", blank=True, null=True)
+    apartment_area = models.IntegerField(verbose_name="متراژ آپارتمان", blank=True, null=True)
+    BUILDING_TYPE_CHOICES = (
+        ('apartment', 'آپارتمان'),
+        ('villa', 'ویلایی'),
+        ('basement', 'زیرزمین مسکونی'),
+        ('other', 'سایر'),
+    )
+    building_type = models.CharField(max_length=30, choices=BUILDING_TYPE_CHOICES, verbose_name="نوع ساختمان", blank=True, null=True)
+    room_count = models.IntegerField(verbose_name="تعداد اتاق", blank=True, null=True)
     
     pension_status = models.CharField(max_length=30, choices=PENSION_CHOICES, verbose_name="وضعیت مستمری", blank=True, null=True)
     case_type = models.CharField(max_length=30, choices=TYPE_CHOICES, verbose_name="نوع پرونده", blank=True, null=True)
