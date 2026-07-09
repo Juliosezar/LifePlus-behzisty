@@ -1,10 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
     <title>ثبت پرونده جدید</title>
         {% include 'base_head.html' %}
-    <link rel="stylesheet" href="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.css">
-    <script type="text/javascript" src="https://unpkg.com/@majidh1/jalalidatepicker/dist/jalalidatepicker.min.js"></script>
+    <link rel="stylesheet" href="{% static 'jalalidatepicker/jalalidatepicker.min.css' %}">
+    <script type="text/javascript" src="{% static 'jalalidatepicker/jalalidatepicker.min.js' %}"></script>
 
     <style>
         body { font-family: 'Vazirmatn', sans-serif; }
