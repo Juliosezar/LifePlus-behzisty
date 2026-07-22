@@ -40,10 +40,10 @@ The query must be a valid PostgreSQL SELECT statement.
 
 Important:
 - Use the exact table and column names from the schema above.
-- Always use LIMIT 100 for queries that return rows (not aggregates).
 - For the table structure, use `cases_case` as the main table.
 - Respond ONLY with the SQL query."""
 
+# - Always use LIMIT 100 for queries that return rows (not aggregates).
 
 def ask_question(question, history=""):
     """Ask a natural language question and get back (reply, sql_query, result_rows, columns)."""
@@ -52,7 +52,7 @@ def ask_question(question, history=""):
         openai_api_key=settings.NINEROUTER_API_KEY,
         openai_api_base=settings.NINEROUTER_BASE_URL,
         temperature=0,
-        max_tokens=1024,
+        max_tokens=5000,
         request_timeout=60,
     )
     db = _get_db()
