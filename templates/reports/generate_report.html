@@ -248,7 +248,14 @@
                     body: JSON.stringify({ extra_details: userInput }),
                 });
 
-                const data = await response.json();
+                let data;
+                try {
+                    data = await response.json();
+                } catch (parseErr) {
+                    errorMsg.textContent = `سرور پاسخ نامعتبری برگرداند (${response.status}). لطفاً صفحه را رفرش کنید.`;
+                    errorMsg.classList.remove('hidden');
+                    return;
+                }
 
                 if (response.ok && data.report) {
                     document.getElementById('report-editor').value = data.report;
@@ -259,7 +266,7 @@
                     errorMsg.classList.remove('hidden');
                 }
             } catch (err) {
-                errorMsg.textContent = 'خطا در ارتباط با سرور.';
+                errorMsg.textContent = 'خطا: ' + (err.message || 'ارتباط با سرور برقرار نشد. لطفاً دوباره تلاش کنید.');
                 errorMsg.classList.remove('hidden');
             } finally {
                 generateBtn.disabled = false;
