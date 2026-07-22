@@ -1,0 +1,288 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <title>تولید گزارش: {{ case.first_name }} {{ case.last_name }}</title>
+    {% include "base_head.html" %}
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .hidden { display: none !important; }
+        .pulse-ring { animation: pulseRing 1s ease-out infinite; }
+        @keyframes pulseRing {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            100% { box-shadow: 0 0 0 14px rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen pb-20">
+
+    <!-- HEADER -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                <span class="bg-purple-100 text-purple-600 p-2 rounded-lg shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                </span>
+                تولید گزارش بازدید
+            </h1>
+            <a href="{% url 'cases:case_detail' case.pk %}" class="text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 border border-gray-200 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                بازگشت به پرونده
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-6 space-y-6">
+
+        <!-- CASE SUMMARY -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-slate-50 px-6 py-3 border-b border-gray-200">
+                <h2 class="font-bold text-slate-700 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    اطلاعات پرونده
+                </h2>
+            </div>
+            <div class="p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 text-sm">
+                <div><span class="block text-xs text-gray-400">نام</span><span class="font-bold text-gray-800">{{ case.first_name }} {{ case.last_name }}</span></div>
+                <div><span class="block text-xs text-gray-400">کد ملی</span><span class="font-bold text-gray-800 font-mono">{{ case.national_id }}</span></div>
+                <div><span class="block text-xs text-gray-400">جنسیت</span><span class="font-bold text-gray-800">{{ case.get_gender_display }}</span></div>
+                <div><span class="block text-xs text-gray-400">تاریخ تولد</span><span class="font-bold text-gray-800">{{ case.date_of_birth|default:"-" }}</span></div>
+                <div><span class="block text-xs text-gray-400">نوع پرونده</span><span class="font-bold text-gray-800">{{ case.get_case_type_display|default:"-" }}</span></div>
+                <div><span class="block text-xs text-gray-400">تحصیلات</span><span class="font-bold text-gray-800">{{ case.get_education_display|default:"-" }}</span></div>
+                <div><span class="block text-xs text-gray-400">شغل</span><span class="font-bold text-gray-800">{{ case.job|default:"-" }}</span></div>
+                <div><span class="block text-xs text-gray-400">مسکن</span><span class="font-bold text-gray-800">{{ case.get_housing_status_display|default:"-" }}</span></div>
+                <div><span class="block text-xs text-gray-400">تاهل</span><span class="font-bold text-gray-800">{{ case.get_marrige_status_display|default:"-" }}</span></div>
+                <div><span class="block text-xs text-gray-400">مستمری</span><span class="font-bold text-gray-800">{{ case.get_pension_status_display|default:"-" }}</span></div>
+            </div>
+        </div>
+
+        <!-- USER INPUT -->
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-purple-50 px-6 py-3 border-b border-purple-100">
+                <h2 class="font-bold text-purple-800 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    توضیحات و مشاهدات کارشناس
+                </h2>
+            </div>
+            <div class="p-6">
+                <textarea id="user-input" rows="8" 
+                    class="w-full border border-gray-300 rounded-xl p-4 text-sm leading-relaxed focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none transition resize-y"
+                    placeholder="مشاهدات خود را از بازدید منزل مددجو بنویسید...
+
+شامل موارد زیر:
+- مشکلات و چالش‌های فعلی
+- نقاط قوت مددجو و خانواده
+- نقاط ضعف و کمبودها
+- پیشنهادات و برنامه اقدام"></textarea>
+                
+                <div class="flex items-center justify-between mt-4 gap-4">
+                    <div class="flex items-center gap-3">
+                        <button id="voice-btn" 
+                            class="relative w-12 h-12 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center transition border border-gray-300 select-none"
+                            title="نگه دارید و صحبت کنید">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                        </button>
+                        <span id="voice-status" class="text-xs text-gray-400">نگه دارید و صحبت کنید</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <span id="error-msg" class="text-red-500 text-sm hidden"></span>
+                        <button id="generate-btn" onclick="generateReport()" 
+                            class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-purple-500/30 transition transform hover:-translate-y-0.5 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                            <span id="btn-text">تولید گزارش</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- LOADING INDICATOR -->
+        <div id="loading" class="hidden bg-white rounded-2xl shadow-sm border border-purple-200 p-8 text-center">
+            <div class="flex items-center justify-center gap-3">
+                <svg class="animate-spin h-6 w-6 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                <span class="text-purple-700 font-bold">در حال تولید گزارش...</span>
+            </div>
+        </div>
+
+        <!-- REPORT RESULT / EDITOR -->
+        <div id="report-section" class="hidden bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="bg-emerald-50 px-6 py-3 border-b border-emerald-100 flex justify-between items-center">
+                <h2 class="font-bold text-emerald-800 text-sm flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    گزارش تولید شده
+                </h2>
+                <div class="flex gap-2">
+                    <button onclick="copyReport()" id="copy-btn"
+                        class="text-emerald-700 hover:text-emerald-900 bg-white px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 border border-emerald-200 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                        <span id="copy-text">کپی</span>
+                    </button>
+                </div>
+            </div>
+            <div class="p-6">
+                <textarea id="report-editor" rows="20"
+                    class="w-full border border-gray-200 rounded-xl p-4 text-sm leading-loose focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 outline-none transition resize-y font-medium"
+                    dir="rtl"></textarea>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const csrfToken = '{{ csrf_token }}';
+        const transcribeUrl = "{% url 'reports:transcribe_audio' %}";
+
+        // ========== VOICE RECORDING ==========
+        const voiceBtn = document.getElementById('voice-btn');
+        const voiceStatus = document.getElementById('voice-status');
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let isRecording = false;
+
+        voiceBtn.addEventListener('mousedown', startRecording);
+        voiceBtn.addEventListener('touchstart', function(e) { e.preventDefault(); startRecording(); });
+        document.addEventListener('mouseup', stopRecording);
+        document.addEventListener('touchend', stopRecording);
+
+        async function startRecording() {
+            if (isRecording) return;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = function(e) {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = async function() {
+                    stream.getTracks().forEach(track => track.stop());
+                    if (audioChunks.length === 0) return;
+                    const blob = new Blob(audioChunks, { type: 'audio/webm' });
+                    await sendAudio(blob);
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                voiceBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-300');
+                voiceBtn.classList.add('bg-red-100', 'text-red-600', 'border-red-300', 'pulse-ring');
+                voiceStatus.textContent = 'در حال ضبط...';
+                voiceStatus.classList.remove('text-gray-400');
+                voiceStatus.classList.add('text-red-500');
+            } catch (err) {
+                voiceStatus.textContent = 'دسترسی به میکروفون رد شد';
+                voiceStatus.classList.add('text-red-500');
+            }
+        }
+
+        function stopRecording() {
+            if (!isRecording || !mediaRecorder) return;
+            mediaRecorder.stop();
+            isRecording = false;
+            voiceBtn.classList.remove('bg-red-100', 'text-red-600', 'border-red-300', 'pulse-ring');
+            voiceBtn.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300');
+            voiceStatus.textContent = 'در حال پردازش...';
+            voiceStatus.classList.remove('text-red-500');
+            voiceStatus.classList.add('text-gray-400');
+        }
+
+        async function sendAudio(blob) {
+            const formData = new FormData();
+            formData.append('audio', blob, 'recording.webm');
+
+            try {
+                const resp = await fetch(transcribeUrl, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': csrfToken },
+                    body: formData,
+                });
+                const data = await resp.json();
+                if (resp.ok && data.text) {
+                    const textarea = document.getElementById('user-input');
+                    if (textarea.value.trim()) {
+                        textarea.value = textarea.value.trimEnd() + '\n' + data.text;
+                    } else {
+                        textarea.value = data.text;
+                    }
+                    voiceStatus.textContent = 'اضافه شد!';
+                    setTimeout(() => { voiceStatus.textContent = 'نگه دارید و صحبت کنید'; }, 2000);
+                } else {
+                    voiceStatus.textContent = data.error || 'خطا در تبدیل صدا';
+                    setTimeout(() => { voiceStatus.textContent = 'نگه دارید و صحبت کنید'; }, 3000);
+                }
+            } catch (err) {
+                voiceStatus.textContent = 'خطا در ارتباط با سرور';
+                setTimeout(() => { voiceStatus.textContent = 'نگه دارید و صحبت کنید'; }, 3000);
+            }
+        }
+
+        // ========== REPORT GENERATION ==========
+        async function generateReport() {
+            const userInput = document.getElementById('user-input').value.trim();
+            const errorMsg = document.getElementById('error-msg');
+            const generateBtn = document.getElementById('generate-btn');
+            const btnText = document.getElementById('btn-text');
+            const loading = document.getElementById('loading');
+            const reportSection = document.getElementById('report-section');
+
+            errorMsg.classList.add('hidden');
+
+            if (!userInput) {
+                errorMsg.textContent = 'لطفاً توضیحات را وارد کنید.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            btnText.textContent = 'در حال تولید...';
+            loading.classList.remove('hidden');
+            reportSection.classList.add('hidden');
+
+            try {
+                const response = await fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({ extra_details: userInput }),
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.report) {
+                    document.getElementById('report-editor').value = data.report;
+                    reportSection.classList.remove('hidden');
+                    reportSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                } else {
+                    errorMsg.textContent = data.error || 'خطایی رخ داد.';
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMsg.textContent = 'خطا در ارتباط با سرور.';
+                errorMsg.classList.remove('hidden');
+            } finally {
+                generateBtn.disabled = false;
+                btnText.textContent = 'تولید گزارش';
+                loading.classList.add('hidden');
+            }
+        }
+
+        function copyReport() {
+            const editor = document.getElementById('report-editor');
+            const copyText = document.getElementById('copy-text');
+            
+            navigator.clipboard.writeText(editor.value).then(() => {
+                copyText.textContent = 'کپی شد!';
+                setTimeout(() => { copyText.textContent = 'کپی'; }, 2000);
+            }).catch(() => {
+                editor.select();
+                document.execCommand('copy');
+                copyText.textContent = 'کپی شد!';
+                setTimeout(() => { copyText.textContent = 'کپی'; }, 2000);
+            });
+        }
+    </script>
+
+</body>
+</html>

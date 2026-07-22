@@ -10,6 +10,7 @@ urlpatterns = [
     path('cases/expired-commissions/', views.ExpiredCommissionsView.as_view(), name='expired_commissions'),
     path('cases/expired-cards/', views.ExpiredDisabilityCardsView.as_view(), name='expired_cards'),
     path('cases/demands/', views.AllDemandsListView.as_view(), name='all_demands'),
-
+    path('case/<int:pk>/generate-report/', views.GenerateReportView.as_view(), name='generate_report'),
+    path('transcribe/', views.TranscribeAudioView.as_view(), name='transcribe_audio'),
 
 ]

@@ -1,9 +1,11 @@
-from django.views.generic import ListView
+import json
+from django.views.generic import ListView, View
 from cases.models import Case
 from .forms import CaseReportForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 import openpyxl
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404
 from django.db.models import Max
 from datetime import timedelta
 import datetime
@@ -11,6 +13,7 @@ import jdatetime
 from cases.models import CaseDocuments
 from cases.models import Demands
 from django.db.models import Q
+from .agent import generate_report, transcribe_audio
 
 
 
@@ -330,3 +333,129 @@ class AllDemandsListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         return Demands.objects.select_related('case').order_by('-date', '-id')
+
+
+class GenerateReportView(LoginRequiredMixin, View):
+    template_name = 'reports/generate_report.html'
+
+    def _serialize_case(self, case):
+        father = case.family.filter(relation='father').first()
+        father_name = f"{father.first_name or ''}" if father else '-'
+
+        disabilities = [
+            {'type': d.get_disability_type_display(), 'level': d.get_disability_level_display()}
+            for d in case.disabilities.all()
+        ]
+
+        family_members = []
+        for m in case.family.all():
+            family_members.append({
+                'relation': m.get_relation_display(),
+                'name': f"{m.first_name or ''} {m.last_name or ''}".strip() or '-',
+                'education': m.get_education_display() if m.education else None,
+                'job': m.job,
+                'description': m.description,
+            })
+
+        return {
+            'first_name': case.first_name,
+            'last_name': case.last_name,
+            'father_name': father_name,
+            'national_id': case.national_id,
+            'birth_certificate_number': case.birth_certificate_number or '-',
+            'date_of_birth': str(case.date_of_birth) if case.date_of_birth else '-',
+            'birth_place': case.birth_place or '-',
+            'gender': case.get_gender_display(),
+            'education': case.get_education_display() if case.education else '-',
+            'field_of_study': case.field_of_study or '-',
+            'marriage_status': case.get_marrige_status_display() if case.marrige_status else '-',
+            'military_service': case.get_military_serveice_display() if case.military_serveice else '-',
+            'job': case.job or '-',
+            'phone_number': case.phone_number or '-',
+            'home_phone_number': case.home_phone_number or '-',
+            'case_type': case.get_case_type_display() if case.case_type else '-',
+            'pension_status': case.get_pension_status_display() if case.pension_status else '-',
+            'insurance': case.get_insurance_display() if case.insurance else '-',
+            'housing_status': case.get_housing_status_display() if case.housing_status else '-',
+            'house_mortgage': case.house_mortgage,
+            'house_rent': case.house_rent,
+            'residential_area': case.get_residencial_area_display() if case.residencial_area else '-',
+            'address': case.address or '-',
+            'apartment_area': case.apartment_area,
+            'building_type': case.get_building_type_display() if case.building_type else '-',
+            'room_count': case.room_count,
+            'children_count': case.children_count,
+            'dependents_count': case.dependents_count,
+            'brothers_count': case.brothers_count,
+            'sisters_count': case.sisters_count,
+            'disabilities': disabilities,
+            'reasons': [r.get_reason_display() for r in case.reasons.all()],
+            'recovered_reasons': [
+                f"{r.get_reason_display()} | مهارت: {r.skill or '-'} | سابقه: {r.work_experience or '-'}"
+                for r in case.recovered_reasons.all()
+            ],
+            'family_members': family_members,
+            'services_provided': [s.service for s in case.services_provided.all()],
+            'demands': [d.request for d in case.demands.all()],
+            'notes': [n.note for n in case.casenotes_set.all()],
+        }
+
+    def get(self, request, pk):
+        case = get_object_or_404(
+            Case.objects.prefetch_related(
+                'disabilities', 'reasons', 'recovered_reasons',
+                'family', 'services_provided', 'demands', 'casenotes_set', 'visits'
+            ),
+            pk=pk
+        )
+        return render(request, self.template_name, {'case': case})
+
+    def post(self, request, pk):
+        case = get_object_or_404(
+            Case.objects.prefetch_related(
+                'disabilities', 'reasons', 'recovered_reasons',
+                'family', 'services_provided', 'demands', 'casenotes_set', 'visits'
+            ),
+            pk=pk
+        )
+
+        try:
+            body = json.loads(request.body)
+            user_input = body.get('extra_details', '').strip()
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+
+        if not user_input:
+            return JsonResponse({'error': 'لطفاً توضیحات را وارد کنید.'}, status=400)
+
+        try:
+            case_data = self._serialize_case(case)
+            report_text = generate_report(case_data, user_input)
+            return JsonResponse({'report': report_text})
+        except Exception as e:
+            return JsonResponse({'error': f'خطا در تولید گزارش: {str(e)}'}, status=500)
+
+
+class TranscribeAudioView(LoginRequiredMixin, View):
+    def post(self, request):
+        audio_file = request.FILES.get('audio')
+        if not audio_file:
+            return JsonResponse({'error': 'فایل صوتی ارسال نشده.'}, status=400)
+
+        import tempfile, os
+        suffix = '.webm'
+        tmp = tempfile.NamedTemporaryFile(delete=False, suffix=suffix)
+        try:
+            for chunk in audio_file.chunks():
+                tmp.write(chunk)
+            tmp.close()
+
+            text = transcribe_audio(tmp.name)
+            return JsonResponse({'text': text})
+        except Exception as e:
+            return JsonResponse({'error': f'خطا در تبدیل صدا: {str(e)}'}, status=500)
+        finally:
+            try:
+                os.unlink(tmp.name)
+            except OSError:
+                pass
