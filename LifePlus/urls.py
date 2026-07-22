@@ -11,4 +11,5 @@ urlpatterns = [
     path('accounts/', include('accounts.urls'), name='accounts'),
     path('cases/', include('cases.urls'), name='cases'),
     path('reports/', include('reports.urls'), name='reports'),
+    path('ai-chat/', include('ai_chat.urls'), name='ai_chat'),
 ]

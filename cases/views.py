@@ -20,7 +20,7 @@ from .forms import (
 from .models import Case, CaseDocuments, CaseNotes,  Visit
 from django.views.generic import View
 from django.db.models import Q
-
+from .forms import DemandForm, ServiceProvidedForm
 
 class CaseCreateView(LoginRequiredMixin, CreateView):
     model = Case
@@ -235,8 +235,7 @@ class CaseSearchView(LoginRequiredMixin, ListView):
         return context
 
 
-from .models import Case, Demands, Services_provided
-from .forms import DemandForm, ServiceProvidedForm
+
 
 class CaseServicesView(LoginRequiredMixin, View):
     template_name = 'cases/case_services.html'

@@ -12,7 +12,7 @@ services:
     build: 
       context: .
       dockerfile: .docker/Dockerfile
-    command: gunicorn --bind 0.0.0.0:8000 --reload LifePlus.wsgi:application --workers 2 --log-level info
+    command: gunicorn --bind 0.0.0.0:8000 --reload LifePlus.wsgi:application --workers 2 --timeout 120 --log-level info
     volumes:
       - .:/app  # Mount for live code changes
     depends_on:

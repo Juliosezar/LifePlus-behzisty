@@ -1,0 +1,413 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    {% include "base_head.html" %}
+    <title>چت هوش مصنوعی</title>
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #chat-messages::-webkit-scrollbar { width: 6px; }
+        #chat-messages::-webkit-scrollbar-track { background: transparent; }
+        #chat-messages::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+
+        .typing-dot {
+            width: 8px; height: 8px; background: #9ca3af; border-radius: 50%;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .result-table { direction: ltr; }
+        .result-table th, .result-table td { text-align: left; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Sticky Header -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-200 shadow-sm px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-800 flex items-center gap-3">
+                <button id="sidebar-toggle" style="background: #f3f4f6; border: 1px solid #e5e7eb; border-radius: 10px; padding: 8px; cursor: pointer; display: none;" title="نمایش/مخفی کردن تاریخچه">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 20px; height: 20px; color: #374151;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                    </svg>
+                </button>
+                <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-2.5 rounded-2xl shadow-lg shadow-emerald-500/30">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                    </svg>
+                </div>
+                چت هوش مصنوعی
+            </h1>
+            <a href="{% url 'accounts:home' %}"
+               class="text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100
+                      px-4 py-2 rounded-xl text-sm font-bold transition flex items-center
+                      gap-2 border border-gray-200 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+                بازگشت
+            </a>
+        </div>
+    </nav>
+
+    <main class="max-w-6xl mx-auto px-4 py-6 flex gap-4" style="height: calc(100vh - 80px);">
+
+        <!-- Sidebar: Conversation List -->
+        <aside id="sidebar" style="width: 256px; flex-shrink: 0; display: flex; flex-direction: column;">
+            <div style="background: white; border-radius: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid #f3f4f6; padding: 16px; display: flex; flex-direction: column; height: 100%;">
+                <a href="{% url 'ai_chat:chat' %}"
+                   style="width: 100%; background: #059669; color: white; padding: 10px 16px; border-radius: 12px; font-weight: bold; font-size: 14px; margin-bottom: 16px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; transition: background 0.2s;">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    گفتگوی جدید
+                </a>
+                <div id="conv-list" style="flex: 1; overflow-y: auto;">
+                    {% for conv in conversations %}
+                    <a href="?conv={{ conv.id }}"
+                       style="display: block; padding: 10px 12px; border-radius: 12px; font-size: 14px; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px;
+                              {% if active_conversation and active_conversation.id == conv.id %}
+                                  background: #eff6ff; color: #1d4ed8; font-weight: bold; border: 1px solid #bfdbfe;
+                              {% else %}
+                                  color: #4b5563; border: 1px solid transparent;
+                              {% endif %}">
+                        {{ conv.title|truncatechars:30 }}
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+
+        <!-- Chat Area -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 flex-1 flex flex-col overflow-hidden">
+
+                <!-- Messages -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto p-6 space-y-4">
+                    {% if not active_conversation %}
+                    <!-- Welcome Screen -->
+                    <div class="text-center py-12 fade-in">
+                        <div class="bg-emerald-50 text-emerald-600 p-5 rounded-2xl w-fit mx-auto mb-5 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-2xl font-black text-gray-800 mb-2">دستیار هوشمند پایگاه داده</h2>
+                        <p class="text-gray-500 text-sm max-w-md mx-auto leading-relaxed">
+                            سوالات خود را درباره پرونده‌ها به زبان فارسی بپرسید.
+                            من از داده‌های موجود در سیستم پاسخ می‌دهم.
+                        </p>
+                        <div class="flex flex-wrap justify-center gap-2 mt-8">
+                            <button class="suggestion-chip bg-blue-50 text-blue-700 px-4 py-2.5 rounded-full text-sm font-medium hover:bg-blue-100 transition border border-blue-200"
+                                    data-msg="چند پرونده توانبخشی داریم؟">
+                                چند پرونده توانبخشی داریم؟
+                            </button>
+                            <button class="suggestion-chip bg-emerald-50 text-emerald-700 px-4 py-2.5 rounded-full text-sm font-medium hover:bg-emerald-100 transition border border-emerald-200"
+                                    data-msg="لیست مددجویان مرد را نشان بده">
+                                مددجویان مرد
+                            </button>
+                            <button class="suggestion-chip bg-rose-50 text-rose-700 px-4 py-2.5 rounded-full text-sm font-medium hover:bg-rose-100 transition border border-rose-200"
+                                    data-msg="معلولیت‌های شدید چند نفر هستند؟">
+                                معلولیت‌های شدید
+                            </button>
+                            <button class="suggestion-chip bg-violet-50 text-violet-700 px-4 py-2.5 rounded-full text-sm font-medium hover:bg-violet-100 transition border border-violet-200"
+                                    data-msg="بیشترین درخواست‌ها مربوط به کدام منطقه است؟">
+                                درخواست‌ها بر اساس منطقه
+                            </button>
+                        </div>
+                    </div>
+                    {% else %}
+                        {% for msg in messages %}
+                            {% if msg.role == 'user' %}
+                            <div class="flex justify-end fade-in">
+                                <div class="max-w-[75%] bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed shadow-md">
+                                    {{ msg.content }}
+                                </div>
+                            </div>
+                            {% elif msg.role == 'assistant' %}
+                            <div class="flex justify-start fade-in">
+                                <div class="max-w-[85%] bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm text-sm leading-relaxed shadow-sm">
+                                    <div class="text-gray-800">{{ msg.content|linebreaksbr }}</div>
+                                    {% if msg.sql_query %}
+                                    <details class="mt-3">
+                                        <summary class="text-xs text-gray-400 cursor-pointer hover:text-gray-600 transition">مشاهده SQL</summary>
+                                        <pre class="mt-2 bg-gray-900 text-green-400 p-3 rounded-lg text-xs overflow-x-auto" dir="ltr"><code>{{ msg.sql_query }}</code></pre>
+                                    </details>
+                                    {% endif %}
+                                    {% if msg.sql_result %}
+                                        {% if msg.sql_result|length <= 40 %}
+                                        <div class="mt-3 overflow-x-auto rounded-lg border border-gray-200 result-table">
+                                            <table class="w-full text-xs">
+                                                <thead class="bg-gray-50 text-gray-700">
+                                                    <tr>
+                                                        {% for key in msg.sql_result.0.keys %}
+                                                        <th class="px-3 py-2 font-bold whitespace-nowrap">{{ key }}</th>
+                                                        {% endfor %}
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-gray-100">
+                                                    {% for row in msg.sql_result %}
+                                                    <tr class="hover:bg-blue-50/30">
+                                                        {% for val in row.values %}
+                                                        <td class="px-3 py-2 whitespace-nowrap">{{ val|default:"-" }}</td>
+                                                        {% endfor %}
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        {% else %}
+                                        <a href="{% url 'ai_chat:export_excel' msg.id %}"
+                                           style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 8px 16px; background: #059669; color: white; border-radius: 10px; font-size: 13px; font-weight: bold; text-decoration: none;">
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                            </svg>
+                                            دانلود فایل اکسل ({{ msg.sql_result|length }} ردیف)
+                                        </a>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if msg.error %}
+                                    <div class="mt-2 bg-red-50 text-red-700 p-2 rounded-lg text-xs border border-red-200">خطا: {{ msg.error }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                </div>
+
+                <!-- Input Bar -->
+                <div class="border-t border-gray-100 p-4 bg-gray-50/50">
+                    <form id="chat-form" class="flex gap-3">
+                        {% csrf_token %}
+                        <input type="text" id="chat-input"
+                               class="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3
+                                      text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500
+                                      focus:border-transparent transition"
+                               placeholder="سوال خود را بنویسید..."
+                               autocomplete="off">
+                        <button type="submit" id="btn-send"
+                                class="bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold
+                                       text-sm hover:bg-emerald-700 transition flex items-center gap-2
+                                       disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-emerald-500/20">
+                            <span>ارسال</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 rotate-180">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatInput = document.getElementById('chat-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const btnSend = document.getElementById('btn-send');
+
+        let currentConversationId = {{ active_conversation.id|default:'null' }};
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        function scrollToBottom() {
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function removeWelcome() {
+            const welcome = chatMessages.querySelector('.text-center');
+            if (welcome) welcome.remove();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function formatReply(text) {
+            return escapeHtml(text).replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        function createUserBubble(text) {
+            removeWelcome();
+            const div = document.createElement('div');
+            div.className = 'flex justify-end fade-in';
+            div.innerHTML = '<div class="max-w-[75%] bg-blue-600 text-white px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed shadow-md">' + escapeHtml(text) + '</div>';
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function buildTableHtml(columns, rows) {
+            if (!columns || !columns.length || !rows || !rows.length) return '';
+            if (rows.length > 40) return '';  // Don't render large tables
+            let html = '<div class="mt-3 overflow-x-auto rounded-lg border border-gray-200 result-table"><table class="w-full text-xs"><thead class="bg-gray-50 text-gray-700"><tr>';
+            for (const c of columns) {
+                html += '<th class="px-3 py-2 font-bold whitespace-nowrap">' + escapeHtml(c) + '</th>';
+            }
+            html += '</tr></thead><tbody class="divide-y divide-gray-100">';
+            for (const row of rows) {
+                html += '<tr class="hover:bg-blue-50/30">';
+                for (const col of columns) {
+                    html += '<td class="px-3 py-2 whitespace-nowrap">' + escapeHtml(String(row[col] ?? '-')) + '</td>';
+                }
+                html += '</tr>';
+            }
+            html += '</tbody></table></div>';
+            return html;
+        }
+
+        function createAssistantBubble(reply, sqlQuery, sqlResult, columns, error, messageId) {
+            const div = document.createElement('div');
+            div.className = 'flex justify-start fade-in';
+
+            let tableHtml = buildTableHtml(columns, sqlResult);
+
+            let sqlBlock = '';
+            if (sqlQuery) {
+                sqlBlock = '<details class="mt-3"><summary class="text-xs text-gray-400 cursor-pointer hover:text-gray-600 transition">مشاهده SQL</summary><pre class="mt-2 bg-gray-900 text-green-400 p-3 rounded-lg text-xs overflow-x-auto" dir="ltr"><code>' + escapeHtml(sqlQuery) + '</code></pre></details>';
+            }
+
+            let errorBlock = '';
+            if (error) {
+                errorBlock = '<div class="mt-2 bg-red-50 text-red-700 p-2 rounded-lg text-xs border border-red-200">خطا: ' + escapeHtml(error) + '</div>';
+            }
+
+            let excelBlock = '';
+            if (sqlResult && sqlResult.length > 40 && messageId) {
+                excelBlock = '<a href="/ai-chat/api/export/' + messageId + '/" style="display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 8px 16px; background: #059669; color: white; border-radius: 10px; font-size: 13px; font-weight: bold; text-decoration: none;"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" style="width: 16px; height: 16px;"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" /></svg>دانلود فایل اکسل (' + sqlResult.length + ' ردیف)</a>';
+            }
+
+            div.innerHTML = '<div class="max-w-[85%] bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm text-sm leading-relaxed shadow-sm"><div class="text-gray-800">' + formatReply(reply) + '</div>' + tableHtml + sqlBlock + excelBlock + errorBlock + '</div>';
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const div = document.createElement('div');
+            div.id = 'typing-indicator';
+            div.className = 'flex justify-start fade-in';
+            div.innerHTML = '<div class="bg-white border border-gray-100 px-4 py-3 rounded-2xl rounded-bl-sm shadow-sm"><div class="flex gap-1.5 items-center"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+            chatMessages.appendChild(div);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const el = document.getElementById('typing-indicator');
+            if (el) el.remove();
+        }
+
+        function addToSidebar(convId, title) {
+            const list = document.getElementById('conv-list');
+            if (!list) return;
+            const a = document.createElement('a');
+            a.href = '?conv=' + convId;
+            a.className = 'block px-3 py-2.5 rounded-xl text-sm text-blue-700 font-bold bg-blue-50 border border-blue-200 truncate';
+            a.textContent = title.substring(0, 30);
+            list.prepend(a);
+        }
+
+        chatForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            chatInput.value = '';
+            createUserBubble(message);
+            showTypingIndicator();
+            btnSend.disabled = true;
+
+            try {
+                const response = await fetch('/ai-chat/api/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrfToken,
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        conversation_id: currentConversationId,
+                    }),
+                });
+
+                const data = await response.json();
+                removeTypingIndicator();
+
+                if (data.status === 'ok') {
+                    if (!currentConversationId) {
+                        currentConversationId = data.conversation_id;
+                        history.replaceState(null, '', '?conv=' + currentConversationId);
+                        addToSidebar(currentConversationId, message);
+                    }
+                    createAssistantBubble(data.reply, data.sql_query, data.sql_result, data.columns, data.error, data.message_id);
+                } else {
+                    createAssistantBubble('خطا: ' + (data.error || 'خطای ناشناخته'), '', [], [], data.error);
+                }
+            } catch (err) {
+                removeTypingIndicator();
+                createAssistantBubble('خطا در اتصال به سرور.', '', [], [], err.message);
+            } finally {
+                btnSend.disabled = false;
+                chatInput.focus();
+            }
+        });
+
+        // Suggestion chips
+        document.querySelectorAll('.suggestion-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chatInput.value = chip.dataset.msg;
+                chatForm.dispatchEvent(new Event('submit'));
+            });
+        });
+
+        // Scroll to bottom on load if messages exist
+        scrollToBottom();
+
+        // Sidebar responsive toggle
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        let sidebarOpen = window.innerWidth >= 768;
+
+        function updateSidebar() {
+            if (window.innerWidth < 768) {
+                sidebarToggle.style.display = 'inline-flex';
+                sidebar.style.display = sidebarOpen ? 'flex' : 'none';
+                sidebar.style.position = sidebarOpen ? 'absolute' : 'static';
+                sidebar.style.right = sidebarOpen ? '16px' : 'auto';
+                sidebar.style.top = sidebarOpen ? '80px' : 'auto';
+                sidebar.style.zIndex = sidebarOpen ? '40' : 'auto';
+                sidebar.style.height = sidebarOpen ? 'calc(100vh - 120px)' : 'auto';
+            } else {
+                sidebarToggle.style.display = 'none';
+                sidebar.style.display = 'flex';
+                sidebar.style.position = 'static';
+                sidebar.style.zIndex = 'auto';
+                sidebar.style.height = 'auto';
+            }
+        }
+
+        sidebarToggle.addEventListener('click', () => {
+            sidebarOpen = !sidebarOpen;
+            updateSidebar();
+        });
+
+        window.addEventListener('resize', updateSidebar);
+        updateSidebar();
+    </script>
+</body>
+</html>

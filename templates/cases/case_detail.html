@@ -127,6 +127,12 @@
                         <span class="block text-xs text-gray-400 mb-1">آدرس دقیق</span>
                         <span class="font-medium text-gray-700 leading-relaxed">{{ case.address|default:"-" }}</span>
                     </div>
+
+                    <!-- New Fields: Postal Code, Area, Building Type, Rooms -->
+                    <div><span class="block text-xs text-gray-400 mb-1">کد پستی</span><span class="font-bold text-gray-800 tracking-wider font-mono">{{ case.postal_code|default:"-" }}</span></div>
+                    <div><span class="block text-xs text-gray-400 mb-1">متراژ آپارتمان</span><span class="font-bold text-gray-800">{{ case.apartment_area|default:"-" }} {% if case.apartment_area %}متر مربع{% endif %}</span></div>
+                    <div><span class="block text-xs text-gray-400 mb-1">نوع ساختمان</span><span class="font-bold text-gray-800">{{ case.get_building_type_display|default:"-" }}</span></div>
+                    <div><span class="block text-xs text-gray-400 mb-1">تعداد اتاق</span><span class="font-bold text-gray-800">{{ case.room_count|default:"-" }}</span></div>
                 </div>
             </div>
 

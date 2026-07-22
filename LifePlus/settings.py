@@ -105,6 +105,7 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'cases.apps.CasesConfig',
     'reports.apps.ReportsConfig',
+    'ai_chat.apps.AiChatConfig',
 ]
 
 JALALI_SETTINGS = {
@@ -140,6 +141,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'ai_chat.middleware.CleanupOldChatsMiddleware',
 ]
 
 ROOT_URLCONF = 'LifePlus.urls'
@@ -174,6 +176,14 @@ DATABASES = {
         'PASSWORD': env("DB_PASSWORD"),
         'HOST': env('DB_HOST'),   # or your DB host
         'PORT': env('DB_PORT'),       
+    },
+    'readonly': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'lifeplus',
+        'USER': 'lifeplus_readonly',
+        'PASSWORD': env("DB_READONLY_PASSWORD"),
+        'HOST': env('DB_HOST'),
+        'PORT': '5432',
     }
 }
 
@@ -230,3 +240,8 @@ MEDIA_URL = '/media/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# AI Chat - 9router LLM
+NINEROUTER_API_KEY = env("NINEROUTER_API_KEY", default="")
+NINEROUTER_BASE_URL = "https://9router.jsezar.ir/v1"
+NINEROUTER_MODEL = "life-plus-model"
