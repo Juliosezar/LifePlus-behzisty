@@ -17,6 +17,7 @@ media/after_pics/*
 .crush
 .env
 testx.py
+.mimocode/
 
 media/payment_images/*
 # Thumbnails

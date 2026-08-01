@@ -96,6 +96,7 @@
                         <div><label class="block mb-2 text-sm text-gray-700 font-bold">{{ form.house_rent.label }}</label>{{ form.house_rent }}{% for error in form.house_rent.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                     </div>
 
+                    <div><label class="block mb-2 text-sm text-gray-700">{{ form.residencial_area.label }}</label>{{ form.residencial_area }}{% for error in form.residencial_area.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                     <div class="md:col-span-3"><label class="block mb-2 text-sm text-gray-700">{{ form.address.label }}</label>{{ form.address }}{% for error in form.address.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                     <div><label class="block mb-2 text-sm text-gray-700">{{ form.postal_code.label }}</label>{{ form.postal_code }}{% for error in form.postal_code.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
                     <div><label class="block mb-2 text-sm text-gray-700">{{ form.apartment_area.label }}</label>{{ form.apartment_area }}{% for error in form.apartment_area.errors %}<p class="error-text">{{ error }}</p>{% endfor %}</div>
