@@ -56,9 +56,9 @@ REPORT_GENERATION_PROMPT = """تو یک کارشناس امور اجتماعی �
 def generate_report(case_data: dict, user_input: str) -> str:
     """Generate a visit report by merging case data from DB with user observations."""
     llm = ChatOpenAI(
-        model=settings.NINEROUTER_MODEL,
-        openai_api_key=settings.NINEROUTER_API_KEY,
-        openai_api_base=settings.NINEROUTER_BASE_URL,
+        model=settings.LLM_PROVIDER_MODEL,
+        openai_api_key=settings.LLM_PROVIDER_API_KEY,
+        openai_api_base=settings.LLM_PROVIDER_BASE_URL,
         temperature=0.3,
         max_tokens=5000,
         request_timeout=120,
@@ -186,14 +186,14 @@ def _format_case_data(data: dict) -> str:
 
 def transcribe_audio(file_path: str) -> str:
     """Transcribe audio via 9router Gemini STT with fallback."""
-    API_URL = "https://9router.jsezar.ir/v1/audio/transcriptions"
-    api_key = settings.NINEROUTER_API_KEY
+    API_URL = settings.TTS_PROVIDER_BASE_URL
+    api_key = settings.TTS_PROVIDER_API_KEY
     
     path = Path(file_path)
     if not path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
 
-    models = ["gemini/gemini-2.5-flash", "gemini/gemini-2.5-flash-lite"]
+    models = settings.TTS_PROVIDER_MODELS
     last_error = None
 
     for model in models:

@@ -11,7 +11,13 @@ env = environ.Env(
     DEBUG=(bool,False),
     ALLOWED_HOSTS=(list, []),
     DB_PORT=(int, 5432),
-    IN_PRODUCTION=(bool, False)
+    IN_PRODUCTION=(bool, False),
+    LLM_PROVIDER_MODEL=(str, ''),
+    LLM_PROVIDER_API_KEY=(str, ''),
+    LLM_PROVIDER_BASE_URL=(str, ''),
+    TTS_PROVIDER_API_KEY=(str, ''),
+    TTS_PROVIDER_BASE_URL=(str, ''),
+    TTS_PROVIDER_MODELS=(list, []),
 )
 environ.Env.read_env(BASE_DIR / '.env')
 
@@ -241,7 +247,9 @@ MEDIA_URL = '/media/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# AI Chat - 9router LLM
-NINEROUTER_API_KEY = env("NINEROUTER_API_KEY", default="")
-NINEROUTER_BASE_URL = "https://9router.jsezar.ir/v1"
-NINEROUTER_MODEL = "life-plus-model"
+LLM_PROVIDER_MODEL=env("LLM_PROVIDER_MODEL")
+LLM_PROVIDER_API_KEY=env("LLM_PROVIDER_API_KEY")
+LLM_PROVIDER_BASE_URL=env("LLM_PROVIDER_BASE_URL")
+TTS_PROVIDER_API_KEY=env("TTS_PROVIDER_API_KEY")
+TTS_PROVIDER_BASE_URL=env("TTS_PROVIDER_BASE_URL")
+TTS_PROVIDER_MODELS=env("TTS_PROVIDER_MODELS")

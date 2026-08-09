@@ -48,9 +48,9 @@ Important:
 def ask_question(question, history=""):
     """Ask a natural language question and get back (reply, sql_query, result_rows, columns)."""
     llm = ChatOpenAI(
-        model=settings.NINEROUTER_MODEL,
-        openai_api_key=settings.NINEROUTER_API_KEY,
-        openai_api_base=settings.NINEROUTER_BASE_URL,
+        model=settings.LLM_PROVIDER_MODEL,
+        openai_api_key=settings.LLM_PROVIDER_API_KEY,
+        openai_api_base=settings.LLM_PROVIDER_BASE_URL,
         temperature=0,
         max_tokens=5000,
         request_timeout=60,
