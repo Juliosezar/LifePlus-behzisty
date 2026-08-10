@@ -51,7 +51,6 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
 
                 <!-- 1. Case Type -->
-                {% include "reports/filter_card.html" with field=form.case_type label="نوع پرونده" %}
 
                 <!-- Archive Status -->
                 <div class="rounded-xl overflow-hidden shadow border border-gray-300 bg-white flex flex-col h-full">
@@ -62,6 +61,7 @@
                         {{ form.archive }}
                     </div>
                 </div>
+                {% include "reports/filter_card.html" with field=form.case_type label="نوع پرونده" %}
 
                 {% include "reports/filter_card.html" with field=form.disability_type label="نوع معلولیت" %}
 
