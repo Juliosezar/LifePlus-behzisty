@@ -53,6 +53,16 @@
                 <!-- 1. Case Type -->
                 {% include "reports/filter_card.html" with field=form.case_type label="نوع پرونده" %}
 
+                <!-- Archive Status -->
+                <div class="rounded-xl overflow-hidden shadow border border-gray-300 bg-white flex flex-col h-full">
+                    <div class="bg-black text-white text-center py-2 font-bold text-sm">
+                        وضعیت آرشیو
+                    </div>
+                    <div class="p-3 bg-gray-50 flex-grow flex items-center justify-center">
+                        {{ form.archive }}
+                    </div>
+                </div>
+
                 {% include "reports/filter_card.html" with field=form.disability_type label="نوع معلولیت" %}
 
                 {% include "reports/filter_card.html" with field=form.disability_level label="شدت معلولیت" %}

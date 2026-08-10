@@ -5,6 +5,13 @@ import jdatetime
 from cases.models import Disability, ReasonCase, RecoveredReasonCase
 
 class CaseReportForm(forms.Form):
+    archive = forms.ChoiceField(
+        choices=(('active', 'فقط غیر آرشیو شده'), ('archived', 'فقط آرشیو شده'), ('both', 'هر دو')),
+        initial='active',
+        required=False,
+        label="وضعیت آرشیو",
+        widget=forms.Select(attrs={'class': 'w-full border border-gray-300 rounded-lg px-2 py-2 text-sm bg-white'})
+    )
     gender = forms.MultipleChoiceField(
         choices=Case.GENDER_CHOICES,
         widget=forms.CheckboxSelectMultiple, required=False, label="جنسیت"

@@ -154,6 +154,7 @@ class Case(models.Model):
 
     created_at = jmodels.jDateTimeField(auto_now_add=True)
     updated_at = jmodels.jDateTimeField(auto_now=True)
+    archive = models.BooleanField(default=False, verbose_name="آرشیو شده")
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} - {self.national_id}"

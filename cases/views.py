@@ -178,6 +178,22 @@ class CaseDeleteView(LoginRequiredMixin, DeleteView):
         return reverse_lazy('accounts:home')
 
 
+class CaseArchiveView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        case = get_object_or_404(Case, pk=pk)
+        case.archive = True
+        case.save(update_fields=['archive'])
+        return redirect('cases:case_detail', pk=pk)
+
+
+class CaseUnarchiveView(LoginRequiredMixin, View):
+    def post(self, request, pk):
+        case = get_object_or_404(Case, pk=pk)
+        case.archive = False
+        case.save(update_fields=['archive'])
+        return redirect('cases:case_detail', pk=pk)
+
+
 
 
 

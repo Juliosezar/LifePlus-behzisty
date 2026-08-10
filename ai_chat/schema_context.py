@@ -43,6 +43,7 @@ All tables are in the `public` schema. You have READ-ONLY access.
 | children_count | integer | تعداد فرزندان (0-10) | — |
 | created_at | timestamp | تاریخ ایجاد (Jalali) | — |
 | updated_at | timestamp | تاریخ بروزرسانی (Jalali) | — |
+| archive | boolean | — |
 
 ### cases_casefamilymembers
 | Column | Type | Choices |
@@ -148,4 +149,6 @@ All tables are in the `public` schema. You have READ-ONLY access.
 10. **Only run SELECT queries.** Never INSERT, UPDATE, DELETE, DROP, ALTER, CREATE, or TRUNCATE.
 
 11. **NEVER include markdown tables in your reply text.** The system automatically renders SQL results as a table for the user. Your reply should only contain a short Persian summary of the findings (e.g., "تعداد ۸۵۷ پرونده توانبخشی یافت شد.") — do NOT list rows or create markdown tables in your response.
+
+12. always filter results by `archive = false`
 """

@@ -25,7 +25,13 @@ class CaseReportView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = Case.objects.all().order_by('-created_at').prefetch_related('disabilities', 'reasons', 'recovered_reasons')
-        
+
+        archive_state = self.request.GET.get('archive', 'active')
+        if archive_state == 'archived':
+            queryset = queryset.filter(archive=True)
+        elif archive_state == 'active':
+            queryset = queryset.filter(archive=False)
+
         if self.request.GET:
             form = CaseReportForm(self.request.GET)
             if form.is_valid():
@@ -76,7 +82,13 @@ def export_cases_to_excel(request):
         'reasons', 'disabilities', 'recovered_reasons', 'family',
         'visits', 'demands', 'services_provided'
     )
-    
+
+    archive_state = request.GET.get('archive', 'active')
+    if archive_state == 'archived':
+        queryset = queryset.filter(archive=True)
+    elif archive_state == 'active':
+        queryset = queryset.filter(archive=False)
+
     if request.GET:
         form = CaseReportForm(request.GET)
         if form.is_valid():
@@ -231,7 +243,8 @@ class ExpiredVisitsView(LoginRequiredMixin, ListView):
         queryset = Case.objects.annotate(
             last_visit_date=Max('visits__visit_date')
         ).filter(
-            last_visit_date__lt=threshold_date  # Filter: Date is older than 6 months ago
+            last_visit_date__lt=threshold_date,  # Filter: Date is older than 6 months ago
+            archive=False
         ).order_by('-last_visit_date') 
 
         results = []
@@ -266,7 +279,8 @@ class ExpiredCommissionsView(LoginRequiredMixin, ListView):
         documents = CaseDocuments.objects.filter(
             doc_type='commition',
             date__isnull=False,
-            expiry_diuration__isnull=False
+            expiry_diuration__isnull=False,
+            case__archive=False
         ).select_related('case')
 
         expired_list = []
@@ -306,7 +320,8 @@ class ExpiredDisabilityCardsView(LoginRequiredMixin, ListView):
             )
         ).filter(
             last_card_expiry__lt=today,     
-            last_card_expiry__isnull=False 
+            last_card_expiry__isnull=False,
+            archive=False
         ).order_by('last_card_expiry')      
 
         results = []

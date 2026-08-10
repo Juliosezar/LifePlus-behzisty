@@ -41,6 +41,7 @@
             
             <!-- Buttons -->
             <div class="flex gap-2">
+                {% if not case.archive %}
                 <a href="{% url 'reports:generate_report' case.pk %}" class="text-purple-600 hover:text-purple-800 bg-purple-50 hover:bg-purple-100 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 border border-purple-200 shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     تولید گزارش
@@ -49,6 +50,15 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     ویرایش
                 </a>
+                {% else %}
+                <form method="post" action="{% url 'cases:case_unarchive' case.pk %}" onsubmit="return confirm('آیا از خارج کردن این پرونده از آرشیو اطمینان دارید؟')" class="inline-flex">
+                    {% csrf_token %}
+                    <button type="submit" class="text-amber-600 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 border border-amber-200 shadow-sm cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+                        خارج کردن از آرشیو
+                    </button>
+                </form>
+                {% endif %}
                 
                 <a href="{% url 'accounts:home' %}" class="text-gray-600 hover:text-gray-800 bg-gray-50 hover:bg-gray-100 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2 border border-gray-200 shadow-sm">
                     <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
@@ -443,6 +453,14 @@
         </div>
 
     </main>
+
+    {% if case.archive %}
+    <!-- ARCHIVED FLOATING MESSAGE -->
+    <div class="fixed bottom-6 right-6 z-[70] bg-amber-100 border-2 border-amber-400 text-amber-800 font-bold px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-2 fade-in">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" /></svg>
+        این پرونده آرشیو شده است
+    </div>
+    {% endif %}
 
     <!-- DELETE MODAL -->
     <div id="delete-modal" class="fixed inset-0 z-[60] hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
